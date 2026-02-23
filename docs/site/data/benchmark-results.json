@@ -1,391 +1,370 @@
 {
   "metadata": {
-    "timestamp": "2026-02-23T14:30:00Z",
+    "timestamp": "2026-02-23T20:14:39Z",
     "benchmark_version": "1.0.0",
-    "total_runs": 3,
-    "llm_judge_model": "gpt-4o",
-    "challenges_count": 5,
-    "tools_count": 3
+    "total_runs": 1,
+    "evaluation_method": "heuristic",
+    "challenges_count": 10,
+    "tools_count": 2,
+    "llm_models": {
+      "PR-Agent": "gpt-5.2-2025-12-11",
+      "Shippie": "gpt-4.1-mini"
+    }
   },
   "tools": [
     {
       "name": "PR-Agent",
-      "version": "0.21.0",
+      "version": "0.26",
       "github_url": "https://github.com/qodo-ai/pr-agent",
-      "stars": 10300,
+      "stars": 10254,
       "license": "AGPL-3.0",
-      "install_cmd": "pip install pr-agent",
-      "description": "AI-powered code review assistant with comprehensive analysis capabilities"
+      "install_cmd": "pip install 'git+https://github.com/qodo-ai/pr-agent.git@main'",
+      "description": "AI-powered code review and suggestions by Qodo, using LLMs to analyze pull requests",
+      "llm_model": "gpt-5.2-2025-12-11"
     },
     {
       "name": "Shippie",
-      "version": "1.5.2",
+      "version": "latest",
       "github_url": "https://github.com/mattzcarey/shippie",
-      "stars": 2300,
+      "stars": 2333,
       "license": "MIT",
-      "install_cmd": "npx shippie",
-      "description": "Fast and lightweight AI reviewer focused on catching common issues"
+      "install_cmd": "npm install -g shippie",
+      "description": "Open-source, extensible AI code review agent with local and CI support",
+      "llm_model": "gpt-4.1-mini"
     },
     {
-      "name": "AI Review",
-      "version": "0.3.1",
-      "github_url": "https://github.com/Nikita-Filonov/ai-review",
-      "stars": 269,
-      "license": "Apache-2.0",
-      "install_cmd": "pip install xai-review",
-      "description": "Extensible AI code review framework with custom rule support"
+      "name": "CodeRabbit",
+      "version": "-",
+      "github_url": "https://github.com/coderabbitai/coderabbit",
+      "stars": 8500,
+      "license": "Proprietary",
+      "install_cmd": "curl -fsSL https://cli.coderabbit.ai/install.sh | sh",
+      "description": "AI-powered code review platform with deep contextual understanding",
+      "llm_model": "proprietary",
+      "coming_soon": true
     }
   ],
   "challenges": [
     {
-      "id": "sql-injection-express",
-      "name": "SQL Injection in Express",
-      "category": "Security",
-      "difficulty": "Medium",
-      "ground_truth_issues": 2,
-      "description": "Can your AI reviewer catch a classic Bobby Tables attack? Tests for SQL injection detection"
-    },
-    {
       "id": "hardcoded-secrets",
-      "name": "Hardcoded Secrets",
+      "name": "Hardcoded API Keys and Secrets",
       "category": "Security",
       "difficulty": "Easy",
       "ground_truth_issues": 3,
-      "description": "Spot the secrets hiding in plain sight! Can AI find those AWS keys you forgot to hide?"
+      "description": "PR adds a configuration file with hardcoded API keys, database passwords, and JWT secrets."
+    },
+    {
+      "id": "memory-leak-cache",
+      "name": "Memory Leaks in Caching System",
+      "category": "Performance",
+      "difficulty": "Hard",
+      "ground_truth_issues": 8,
+      "description": "PR adds analytics and subscription features to cache but introduces multiple memory leaks through retained references, unbounded arrays, and improper cleanup."
     },
     {
       "id": "missing-await-async",
-      "name": "Missing Await in Async",
+      "name": "Missing Await on Async Calls",
       "category": "Bug",
       "difficulty": "Medium",
       "ground_truth_issues": 3,
-      "description": "The promise that never resolves... Can AI catch those sneaky missing awaits?"
+      "description": "PR adds a user registration flow that forgets to await several async operations, causing race conditions and silent failures."
     },
     {
-      "id": "off-by-one-pagination",
-      "name": "Off-by-One Pagination",
-      "category": "Bug",
-      "difficulty": "Medium",
-      "ground_truth_issues": 2,
-      "description": "Is it page 10 or page 11? Classic fence-post errors that make devs cry"
+      "id": "multi-file-refactoring",
+      "name": "Poor Multi-File Refactoring with Design Issues",
+      "category": "Architecture",
+      "difficulty": "Hard",
+      "ground_truth_issues": 8,
+      "description": "PR refactors order management system to add features but introduces circular dependencies, breaks encapsulation, and violates separation of concerns."
     },
     {
       "id": "n-plus-one-query",
-      "name": "N+1 Query Problem",
+      "name": "N+1 Database Query Pattern",
       "category": "Performance",
       "difficulty": "Hard",
       "ground_truth_issues": 2,
-      "description": "Death by a thousand queries! Can AI spot the ORM performance killer?"
+      "description": "PR adds an endpoint that fetches a list of orders and then queries for each order's items individually inside a loop, creating an N+1 query problem."
+    },
+    {
+      "id": "off-by-one-pagination",
+      "name": "Off-by-One Error in Pagination",
+      "category": "Bug",
+      "difficulty": "Medium",
+      "ground_truth_issues": 2,
+      "description": "PR adds a paginated list endpoint with an off-by-one error that causes the last item to be duplicated across pages or an item to be skipped."
+    },
+    {
+      "id": "race-condition-counter",
+      "name": "Race Condition in Analytics Counter",
+      "category": "Bug",
+      "difficulty": "Hard",
+      "ground_truth_issues": 4,
+      "description": "PR adds in-memory caching to analytics service, introducing race conditions when multiple requests increment counters concurrently."
+    },
+    {
+      "id": "sql-injection-express",
+      "name": "SQL Injection in Express.js Route Handler",
+      "category": "Security",
+      "difficulty": "Medium",
+      "ground_truth_issues": 2,
+      "description": "PR introduces a user search endpoint that uses string interpolation to build SQL queries, creating a SQL injection vulnerability."
+    },
+    {
+      "id": "typescript-type-safety",
+      "name": "TypeScript Type Safety Violations",
+      "category": "Bug",
+      "difficulty": "Medium",
+      "ground_truth_issues": 6,
+      "description": "PR relaxes type checking to handle external data, introducing multiple type safety issues and potential runtime errors."
+    },
+    {
+      "id": "xss-react-component",
+      "name": "XSS Vulnerability in React Comment Component",
+      "category": "Security",
+      "difficulty": "Medium",
+      "ground_truth_issues": 3,
+      "description": "PR adds HTML rendering support to a comment display component, introducing XSS vulnerabilities through dangerouslySetInnerHTML."
     }
   ],
   "results": [
     {
       "tool": "PR-Agent",
-      "challenge": "sql-injection-express",
+      "challenge": "hardcoded-secrets",
       "metrics": {
-        "precision": 0.92,
-        "recall": 1.0,
-        "f1_score": 0.96,
+        "precision": 0.3333,
+        "recall": 0.6667,
+        "f1_score": 0.4444,
         "true_positives": 2,
-        "false_positives": 0,
-        "false_negatives": 0,
-        "avg_response_time_ms": 3420,
-        "runs": [
-          { "precision": 0.90, "recall": 1.0, "f1_score": 0.95 },
-          { "precision": 0.92, "recall": 1.0, "f1_score": 0.96 },
-          { "precision": 0.94, "recall": 1.0, "f1_score": 0.97 }
-        ]
-      },
-      "findings": [
-        {
-          "type": "SQL Injection",
-          "severity": "critical",
-          "file": "src/routes/users.js",
-          "line": 45,
-          "description": "User input directly concatenated in SQL query"
-        },
-        {
-          "type": "SQL Injection",
-          "severity": "critical",
-          "file": "src/routes/products.js",
-          "line": 87,
-          "description": "Unsanitized parameter in WHERE clause"
-        }
-      ]
+        "false_positives": 4,
+        "false_negatives": 1
+      }
     },
     {
       "tool": "PR-Agent",
+      "challenge": "memory-leak-cache",
+      "metrics": {
+        "precision": 0.3333,
+        "recall": 0.25,
+        "f1_score": 0.2857,
+        "true_positives": 2,
+        "false_positives": 4,
+        "false_negatives": 6
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "missing-await-async",
+      "metrics": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1_score": 0.6667,
+        "true_positives": 3,
+        "false_positives": 3,
+        "false_negatives": 0
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "multi-file-refactoring",
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 6,
+        "false_negatives": 8
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "n-plus-one-query",
+      "metrics": {
+        "precision": 0.1667,
+        "recall": 0.5,
+        "f1_score": 0.25,
+        "true_positives": 1,
+        "false_positives": 5,
+        "false_negatives": 1
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "off-by-one-pagination",
+      "metrics": {
+        "precision": 0.1667,
+        "recall": 0.5,
+        "f1_score": 0.25,
+        "true_positives": 1,
+        "false_positives": 5,
+        "false_negatives": 1
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "race-condition-counter",
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 6,
+        "false_negatives": 4
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "sql-injection-express",
+      "metrics": {
+        "precision": 0.1667,
+        "recall": 0.5,
+        "f1_score": 0.25,
+        "true_positives": 1,
+        "false_positives": 5,
+        "false_negatives": 1
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "typescript-type-safety",
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 6,
+        "false_negatives": 6
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "xss-react-component",
+      "metrics": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1_score": 0.6667,
+        "true_positives": 3,
+        "false_positives": 3,
+        "false_negatives": 0
+      }
+    },
+    {
+      "tool": "Shippie",
       "challenge": "hardcoded-secrets",
       "metrics": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1_score": 1.0,
+        "recall": 0.6667,
+        "f1_score": 0.8,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 1
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "memory-leak-cache",
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.375,
+        "f1_score": 0.5455,
         "true_positives": 3,
         "false_positives": 0,
-        "false_negatives": 0,
-        "avg_response_time_ms": 2150,
-        "runs": [
-          { "precision": 1.0, "recall": 1.0, "f1_score": 1.0 },
-          { "precision": 1.0, "recall": 1.0, "f1_score": 1.0 },
-          { "precision": 1.0, "recall": 1.0, "f1_score": 1.0 }
-        ]
-      },
-      "findings": [
-        {
-          "type": "Hardcoded Secret",
-          "severity": "high",
-          "file": "config/database.js",
-          "line": 12,
-          "description": "Database password hardcoded"
-        },
-        {
-          "type": "Hardcoded API Key",
-          "severity": "high",
-          "file": "src/services/payment.js",
-          "line": 5,
-          "description": "Stripe API key exposed"
-        },
-        {
-          "type": "Hardcoded Secret",
-          "severity": "high",
-          "file": ".env.example",
-          "line": 8,
-          "description": "JWT secret in example file"
-        }
-      ]
+        "false_negatives": 5
+      }
     },
     {
-      "tool": "PR-Agent",
+      "tool": "Shippie",
       "challenge": "missing-await-async",
       "metrics": {
-        "precision": 0.85,
-        "recall": 0.89,
-        "f1_score": 0.87,
+        "precision": 1.0,
+        "recall": 0.6667,
+        "f1_score": 0.8,
         "true_positives": 2,
-        "false_positives": 1,
-        "false_negatives": 1,
-        "avg_response_time_ms": 2890,
-        "runs": [
-          { "precision": 0.83, "recall": 0.89, "f1_score": 0.86 },
-          { "precision": 0.85, "recall": 0.89, "f1_score": 0.87 },
-          { "precision": 0.87, "recall": 0.89, "f1_score": 0.88 }
-        ]
+        "false_positives": 0,
+        "false_negatives": 1
       }
     },
     {
-      "tool": "PR-Agent",
-      "challenge": "off-by-one-pagination",
+      "tool": "Shippie",
+      "challenge": "multi-file-refactoring",
       "metrics": {
-        "precision": 0.75,
-        "recall": 0.5,
-        "f1_score": 0.60,
-        "true_positives": 1,
-        "false_positives": 1,
-        "false_negatives": 1,
-        "avg_response_time_ms": 2340,
-        "runs": [
-          { "precision": 0.70, "recall": 0.5, "f1_score": 0.58 },
-          { "precision": 0.75, "recall": 0.5, "f1_score": 0.60 },
-          { "precision": 0.80, "recall": 0.5, "f1_score": 0.62 }
-        ]
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 9,
+        "false_negatives": 8
       }
     },
     {
-      "tool": "PR-Agent",
+      "tool": "Shippie",
       "challenge": "n-plus-one-query",
       "metrics": {
-        "precision": 0.67,
-        "recall": 0.5,
-        "f1_score": 0.57,
-        "true_positives": 1,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
         "false_positives": 1,
-        "false_negatives": 1,
-        "avg_response_time_ms": 4120,
-        "runs": [
-          { "precision": 0.65, "recall": 0.5, "f1_score": 0.56 },
-          { "precision": 0.67, "recall": 0.5, "f1_score": 0.57 },
-          { "precision": 0.69, "recall": 0.5, "f1_score": 0.58 }
-        ]
+        "false_negatives": 2
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "off-by-one-pagination",
+      "metrics": {
+        "precision": 0.25,
+        "recall": 0.5,
+        "f1_score": 0.3333,
+        "true_positives": 1,
+        "false_positives": 3,
+        "false_negatives": 1
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "race-condition-counter",
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 1,
+        "false_negatives": 4
       }
     },
     {
       "tool": "Shippie",
       "challenge": "sql-injection-express",
       "metrics": {
-        "precision": 0.80,
-        "recall": 0.75,
-        "f1_score": 0.77,
-        "true_positives": 1,
-        "false_positives": 1,
-        "false_negatives": 1,
-        "avg_response_time_ms": 1820,
-        "runs": [
-          { "precision": 0.78, "recall": 0.75, "f1_score": 0.76 },
-          { "precision": 0.80, "recall": 0.75, "f1_score": 0.77 },
-          { "precision": 0.82, "recall": 0.75, "f1_score": 0.78 }
-        ]
-      }
-    },
-    {
-      "tool": "Shippie",
-      "challenge": "hardcoded-secrets",
-      "metrics": {
-        "precision": 0.90,
-        "recall": 0.89,
-        "f1_score": 0.90,
-        "true_positives": 2,
-        "false_positives": 0,
-        "false_negatives": 1,
-        "avg_response_time_ms": 980,
-        "runs": [
-          { "precision": 0.88, "recall": 0.89, "f1_score": 0.89 },
-          { "precision": 0.90, "recall": 0.89, "f1_score": 0.90 },
-          { "precision": 0.92, "recall": 0.89, "f1_score": 0.91 }
-        ]
-      }
-    },
-    {
-      "tool": "Shippie",
-      "challenge": "missing-await-async",
-      "metrics": {
-        "precision": 0.95,
-        "recall": 0.78,
-        "f1_score": 0.86,
-        "true_positives": 2,
-        "false_positives": 0,
-        "false_negatives": 1,
-        "avg_response_time_ms": 1340,
-        "runs": [
-          { "precision": 0.93, "recall": 0.78, "f1_score": 0.85 },
-          { "precision": 0.95, "recall": 0.78, "f1_score": 0.86 },
-          { "precision": 0.97, "recall": 0.78, "f1_score": 0.87 }
-        ]
-      }
-    },
-    {
-      "tool": "Shippie",
-      "challenge": "off-by-one-pagination",
-      "metrics": {
-        "precision": 0.50,
-        "recall": 0.25,
-        "f1_score": 0.33,
-        "true_positives": 0,
-        "false_positives": 1,
-        "false_negatives": 2,
-        "avg_response_time_ms": 1120,
-        "runs": [
-          { "precision": 0.48, "recall": 0.25, "f1_score": 0.32 },
-          { "precision": 0.50, "recall": 0.25, "f1_score": 0.33 },
-          { "precision": 0.52, "recall": 0.25, "f1_score": 0.34 }
-        ]
-      }
-    },
-    {
-      "tool": "Shippie",
-      "challenge": "n-plus-one-query",
-      "metrics": {
-        "precision": 0.33,
-        "recall": 0.25,
-        "f1_score": 0.28,
-        "true_positives": 0,
-        "false_positives": 2,
-        "false_negatives": 2,
-        "avg_response_time_ms": 2340,
-        "runs": [
-          { "precision": 0.31, "recall": 0.25, "f1_score": 0.27 },
-          { "precision": 0.33, "recall": 0.25, "f1_score": 0.28 },
-          { "precision": 0.35, "recall": 0.25, "f1_score": 0.29 }
-        ]
-      }
-    },
-    {
-      "tool": "AI Review",
-      "challenge": "sql-injection-express",
-      "metrics": {
-        "precision": 0.70,
-        "recall": 0.75,
-        "f1_score": 0.72,
-        "true_positives": 1,
-        "false_positives": 1,
-        "false_negatives": 1,
-        "avg_response_time_ms": 2670,
-        "runs": [
-          { "precision": 0.68, "recall": 0.75, "f1_score": 0.71 },
-          { "precision": 0.70, "recall": 0.75, "f1_score": 0.72 },
-          { "precision": 0.72, "recall": 0.75, "f1_score": 0.73 }
-        ]
-      }
-    },
-    {
-      "tool": "AI Review",
-      "challenge": "hardcoded-secrets",
-      "metrics": {
-        "precision": 0.85,
-        "recall": 0.67,
-        "f1_score": 0.75,
-        "true_positives": 2,
-        "false_positives": 1,
-        "false_negatives": 1,
-        "avg_response_time_ms": 1560,
-        "runs": [
-          { "precision": 0.83, "recall": 0.67, "f1_score": 0.74 },
-          { "precision": 0.85, "recall": 0.67, "f1_score": 0.75 },
-          { "precision": 0.87, "recall": 0.67, "f1_score": 0.76 }
-        ]
-      }
-    },
-    {
-      "tool": "AI Review",
-      "challenge": "missing-await-async",
-      "metrics": {
-        "precision": 0.60,
-        "recall": 0.56,
-        "f1_score": 0.58,
-        "true_positives": 1,
-        "false_positives": 1,
-        "false_negatives": 2,
-        "avg_response_time_ms": 1890,
-        "runs": [
-          { "precision": 0.58, "recall": 0.56, "f1_score": 0.57 },
-          { "precision": 0.60, "recall": 0.56, "f1_score": 0.58 },
-          { "precision": 0.62, "recall": 0.56, "f1_score": 0.59 }
-        ]
-      }
-    },
-    {
-      "tool": "AI Review",
-      "challenge": "off-by-one-pagination",
-      "metrics": {
-        "precision": 0.67,
+        "precision": 0.1667,
         "recall": 0.5,
-        "f1_score": 0.57,
+        "f1_score": 0.25,
         "true_positives": 1,
-        "false_positives": 1,
-        "false_negatives": 1,
-        "avg_response_time_ms": 1440,
-        "runs": [
-          { "precision": 0.65, "recall": 0.5, "f1_score": 0.56 },
-          { "precision": 0.67, "recall": 0.5, "f1_score": 0.57 },
-          { "precision": 0.69, "recall": 0.5, "f1_score": 0.58 }
-        ]
+        "false_positives": 5,
+        "false_negatives": 1
       }
     },
     {
-      "tool": "AI Review",
-      "challenge": "n-plus-one-query",
+      "tool": "Shippie",
+      "challenge": "typescript-type-safety",
       "metrics": {
-        "precision": 0.50,
-        "recall": 0.25,
-        "f1_score": 0.33,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
         "true_positives": 0,
-        "false_positives": 1,
-        "false_negatives": 2,
-        "avg_response_time_ms": 3120,
-        "runs": [
-          { "precision": 0.48, "recall": 0.25, "f1_score": 0.32 },
-          { "precision": 0.50, "recall": 0.25, "f1_score": 0.33 },
-          { "precision": 0.52, "recall": 0.25, "f1_score": 0.34 }
-        ]
+        "false_positives": 11,
+        "false_negatives": 6
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "xss-react-component",
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 9,
+        "false_negatives": 3
       }
     }
   ],
@@ -393,43 +372,23 @@
     {
       "tool": "PR-Agent",
       "metrics": {
-        "avg_precision": 0.84,
-        "avg_recall": 0.73,
-        "avg_f1_score": 0.78,
-        "total_true_positives": 7,
-        "total_false_positives": 4,
-        "total_false_negatives": 5,
-        "avg_response_time_ms": 2963,
-        "best_category": "Security",
-        "worst_category": "Performance"
+        "avg_precision": 0.2167,
+        "avg_recall": 0.4417,
+        "avg_f1_score": 0.2813,
+        "total_true_positives": 13,
+        "total_false_positives": 47,
+        "total_false_negatives": 28
       }
     },
     {
       "tool": "Shippie",
       "metrics": {
-        "avg_precision": 0.64,
-        "avg_recall": 0.49,
-        "avg_f1_score": 0.53,
-        "total_true_positives": 5,
-        "total_false_positives": 4,
-        "total_false_negatives": 7,
-        "avg_response_time_ms": 1476,
-        "best_category": "Security",
-        "worst_category": "Performance"
-      }
-    },
-    {
-      "tool": "AI Review",
-      "metrics": {
-        "avg_precision": 0.66,
-        "avg_recall": 0.55,
-        "avg_f1_score": 0.59,
-        "total_true_positives": 5,
-        "total_false_positives": 5,
-        "total_false_negatives": 6,
-        "avg_response_time_ms": 2141,
-        "best_category": "Security",
-        "worst_category": "Performance"
+        "avg_precision": 0.3417,
+        "avg_recall": 0.2708,
+        "avg_f1_score": 0.2729,
+        "total_true_positives": 9,
+        "total_false_positives": 39,
+        "total_false_negatives": 32
       }
     }
   ]

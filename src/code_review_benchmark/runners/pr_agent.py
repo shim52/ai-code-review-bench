@@ -46,11 +46,21 @@ class PRAgentRunner(AbstractToolRunner):
         # CLI config overrides, so we must set the git provider via env vars
         # to ensure the local provider is selected before URL-based detection.
         env["CONFIG.GIT_PROVIDER"] = "local"
-        env["LOCAL.BRANCH"] = pr_branch
 
+        # Ensure HEAD is on the PR branch (the "source" branch).
+        # LocalGitProvider reads head_branch_name from repo.head.ref.name.
+        subprocess.run(
+            ["git", "checkout", pr_branch],
+            capture_output=True, timeout=10, cwd=repo_path,
+        )
+
+        # In local mode, LocalGitProvider.__init__(target_branch_name) is called
+        # with pr_url as the first argument. It uses _find_repository_root() from
+        # cwd to locate the repo, and treats pr_url as the TARGET (base) branch
+        # name to diff against. So we pass main_branch here, not the repo path.
         cmd = [
             "pr-agent",
-            f"--pr_url={repo_path}",
+            f"--pr_url={main_branch}",
             "review",
         ]
 
@@ -75,9 +85,14 @@ class PRAgentRunner(AbstractToolRunner):
             output_text = review_md.read_text()
             output_files.append(review_md)
 
+        has_review = bool(output_text and output_text.strip())
+        stderr = proc.stderr or ""
+        has_fatal = "Traceback (most recent call last)" in stderr or "| ERROR" in stderr
+        success = proc.returncode == 0 and has_review and not has_fatal
+
         return RunResult(
             tool=self.name,
-            success=proc.returncode == 0,
+            success=success,
             output_text=output_text,
             output_files=output_files,
             error=proc.stderr,

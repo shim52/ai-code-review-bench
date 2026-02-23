@@ -42,14 +42,26 @@ class ShippieRunner(AbstractToolRunner):
         if model:
             env["OPENAI_MODEL"] = model
 
+        # Ensure we're on the PR branch.
+        subprocess.run(
+            ["git", "checkout", pr_branch],
+            capture_output=True, timeout=10, cwd=repo_path,
+        )
+
+        # Shippie local mode hardcodes `git diff --cached` (staged changes only).
+        # The challenge repo has changes committed, not staged. Soft-reset the
+        # last commit so the diff appears as staged changes.
+        subprocess.run(
+            ["git", "reset", "--soft", "HEAD~1"],
+            capture_output=True, timeout=10, cwd=repo_path,
+        )
+
         cmd = [
             "npx",
             "shippie",
             "review",
             "--platform",
             "local",
-            "--base-branch",
-            main_branch,
         ]
 
         try:
@@ -76,9 +88,14 @@ class ShippieRunner(AbstractToolRunner):
                 output_files.append(md_file)
                 output_text += "\n" + md_file.read_text()
 
+        combined = (output_text or "") + (proc.stderr or "")
+        has_review = bool(output_text and output_text.strip())
+        no_changes = "no changes found" in combined.lower()
+        success = proc.returncode == 0 and has_review and not no_changes
+
         return RunResult(
             tool=self.name,
-            success=proc.returncode == 0,
+            success=success,
             output_text=output_text,
             output_files=output_files,
             error=proc.stderr,

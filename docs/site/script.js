@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderChallenges();
     renderTools();
     renderMatrix();
-    renderMetricsBreakdown();
 
     // Update timestamp
     updateTimestamp();
@@ -51,11 +50,12 @@ function initTheme() {
 function animateHeroStats() {
     if (!benchmarkData) return;
 
+    const activeTools = benchmarkData.tools.filter(t => !t.coming_soon).length;
     const stats = [
-        { selector: '#tools-count', target: benchmarkData.metadata.tools_count || 3, duration: 800 },
-        { selector: '#challenges-count', target: benchmarkData.metadata.challenges_count || 5, duration: 1000 },
-        { selector: '#runs-count', target: (benchmarkData.metadata.total_runs || 3) * (benchmarkData.metadata.tools_count || 3) * (benchmarkData.metadata.challenges_count || 5), duration: 1200 },
-        { selector: '#issues-count', target: benchmarkData.challenges?.reduce((sum, ch) => sum + (ch.ground_truth_issues || 0), 0) || 12, duration: 1400 }
+        { selector: '#tools-count', target: activeTools, duration: 800 },
+        { selector: '#challenges-count', target: benchmarkData.metadata.challenges_count || benchmarkData.challenges?.length || 10, duration: 1000 },
+        { selector: '#runs-count', target: (benchmarkData.metadata.total_runs || 1) * activeTools * (benchmarkData.metadata.challenges_count || 10), duration: 1200 },
+        { selector: '#issues-count', target: benchmarkData.challenges?.reduce((sum, ch) => sum + (ch.ground_truth_issues || 0), 0) || 41, duration: 1400 }
     ];
 
     stats.forEach(stat => {
@@ -128,15 +128,18 @@ function renderLeaderboard() {
             case 'recall':
                 return b.metrics.avg_recall - a.metrics.avg_recall;
             case 'speed':
-                return a.metrics.avg_response_time_ms - b.metrics.avg_response_time_ms;
+                return (a.metrics.avg_response_time_ms || 0) - (b.metrics.avg_response_time_ms || 0);
             default:
                 return 0;
         }
     });
 
+    const llmModels = benchmarkData.metadata.llm_models || {};
+
     container.innerHTML = sortedTools.map((tool, index) => {
         const toolInfo = benchmarkData.tools.find(t => t.name === tool.tool);
         const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+        const llmModel = toolInfo?.llm_model || llmModels[tool.tool] || '';
 
         return `
             <div class="leaderboard-item">
@@ -144,9 +147,9 @@ function renderLeaderboard() {
                 <div class="tool-info">
                     <div class="tool-name">${tool.tool}</div>
                     <div class="tool-meta">
-                        <span>⭐ ${toolInfo.stars.toLocaleString()} stars</span>
-                        <span>📜 ${toolInfo.license}</span>
-                        <span>⚡ ${Math.round(tool.metrics.avg_response_time_ms)}ms avg</span>
+                        <span>⭐ ${toolInfo ? toolInfo.stars.toLocaleString() : '?'} stars</span>
+                        <span>📜 ${toolInfo ? toolInfo.license : ''}</span>
+                        ${llmModel ? `<span class="llm-badge">🧠 ${llmModel}</span>` : ''}
                     </div>
                 </div>
                 <div class="metrics-grid">
@@ -187,10 +190,10 @@ function renderChallenges() {
     container.innerHTML = benchmarkData.challenges.map(challenge => {
         // Calculate average performance across all tools
         const challengeResults = benchmarkData.results.filter(r => r.challenge === challenge.id);
-        const avgF1 = challengeResults.reduce((sum, r) => sum + r.metrics.f1_score, 0) / challengeResults.length;
-        const bestTool = challengeResults.reduce((best, r) =>
+        const avgF1 = challengeResults.length > 0 ? challengeResults.reduce((sum, r) => sum + r.metrics.f1_score, 0) / challengeResults.length : 0;
+        const bestTool = challengeResults.length > 0 ? challengeResults.reduce((best, r) =>
             r.metrics.f1_score > best.metrics.f1_score ? r : best
-        );
+        ) : { tool: 'N/A' };
 
         return `
             <div class="challenge-card" onclick="showChallengeDetails('${challenge.id}')">
@@ -223,7 +226,39 @@ function renderTools() {
     const container = document.getElementById('tools-grid');
 
     container.innerHTML = benchmarkData.tools.map(tool => {
+        const isComingSoon = tool.coming_soon === true;
         const toolScore = benchmarkData.overall_scores.find(s => s.tool === tool.name);
+        const llmModel = tool.llm_model || '';
+
+        if (isComingSoon) {
+            return `
+                <div class="tool-card tool-coming-soon">
+                    <div class="tool-header">
+                        <div class="tool-title">${tool.name} <span class="coming-soon-badge">Coming Soon</span></div>
+                        <div class="tool-stars">
+                            <span>⭐</span>
+                            <span>${tool.stars.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div class="tool-description">${tool.description}</div>
+                    <div class="tool-install">$ ${tool.install_cmd}</div>
+                    ${llmModel ? `<div class="tool-llm"><span class="llm-badge">🧠 LLM: ${llmModel}</span></div>` : ''}
+                    <div class="coming-soon-overlay">
+                        <p>Benchmark results coming soon</p>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                        <a href="${tool.github_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                            View on GitHub
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
 
         return `
             <div class="tool-card">
@@ -236,6 +271,7 @@ function renderTools() {
                 </div>
                 <div class="tool-description">${tool.description}</div>
                 <div class="tool-install">$ ${tool.install_cmd}</div>
+                ${llmModel ? `<div class="tool-llm"><span class="llm-badge">🧠 LLM: ${llmModel}</span></div>` : ''}
                 <div class="tool-performance">
                     <div class="performance-bars">
                         <div class="performance-bar">
@@ -299,19 +335,20 @@ function renderMatrix() {
     });
     html += '</tr></thead><tbody>';
 
-    // Add tool rows
+    // Add tool rows (skip coming_soon tools with no results)
     Object.keys(matrix).forEach(tool => {
         html += `<tr><th>${tool}</th>`;
         benchmarkData.challenges.forEach(challenge => {
             const metrics = matrix[tool][challenge.id];
             if (metrics) {
                 const scoreClass = getScoreClass(metrics.f1_score);
+                const gt = challenge.ground_truth_issues || '?';
                 html += `
                     <td onclick="showResultDetails('${tool}', '${challenge.id}')"
                         style="background: ${getScoreBackground(metrics.f1_score)}">
                         <div class="matrix-cell">
                             <span class="matrix-score ${scoreClass}">${(metrics.f1_score * 100).toFixed(0)}%</span>
-                            <span class="matrix-detail">${metrics.true_positives}/${challenge.ground_truth_issues} found</span>
+                            <span class="matrix-detail">${metrics.true_positives}/${gt} found</span>
                         </div>
                     </td>
                 `;
@@ -421,12 +458,6 @@ function showResultDetails(toolName, challengeId) {
                     </span>
                 </div>
                 <div>
-                    <span style="color: var(--text-secondary);">Response Time:</span>
-                    <span style="font-size: 1.5rem; font-weight: 700; margin-left: 0.5rem;">
-                        ${result.metrics.avg_response_time_ms}ms
-                    </span>
-                </div>
-                <div>
                     <span style="color: var(--text-secondary);">Precision:</span>
                     <span style="font-weight: 600; margin-left: 0.5rem;">${(result.metrics.precision * 100).toFixed(1)}%</span>
                 </div>
@@ -434,6 +465,10 @@ function showResultDetails(toolName, challengeId) {
                     <span style="color: var(--text-secondary);">Recall:</span>
                     <span style="font-weight: 600; margin-left: 0.5rem;">${(result.metrics.recall * 100).toFixed(1)}%</span>
                 </div>
+                ${tool?.llm_model ? `<div>
+                    <span style="color: var(--text-secondary);">LLM:</span>
+                    <span style="font-weight: 600; margin-left: 0.5rem;">${tool.llm_model}</span>
+                </div>` : ''}
             </div>
         </div>
 
@@ -477,6 +512,7 @@ function showResultDetails(toolName, challengeId) {
             </div>
         ` : ''}
 
+        ${result.metrics.runs ? `
         <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
             <h3 style="margin-bottom: 1rem;">Run Consistency</h3>
             <div style="display: flex; gap: 1rem;">
@@ -488,6 +524,7 @@ function showResultDetails(toolName, challengeId) {
                 `).join('')}
             </div>
         </div>
+        ` : ''}
     `;
 
     showModal(html);
@@ -531,12 +568,12 @@ function getSeverityColor(severity) {
 }
 
 function updateTimestamp() {
-    const lastUpdatedElement = document.getElementById('last-updated-time');
-    if (lastUpdatedElement && benchmarkData && benchmarkData.metadata.last_updated) {
-        lastUpdatedElement.textContent = benchmarkData.metadata.last_updated;
-    } else if (lastUpdatedElement) {
-        lastUpdatedElement.textContent = 'No data available';
-    }
+    const ts = benchmarkData?.metadata?.timestamp || benchmarkData?.metadata?.last_updated;
+    const display = ts ? new Date(ts).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No data available';
+    const el1 = document.getElementById('last-updated-time');
+    const el2 = document.getElementById('last-updated');
+    if (el1) el1.textContent = display;
+    if (el2) el2.textContent = display;
 }
 
 function showError(message) {
@@ -632,7 +669,7 @@ function renderTrendChart() {
         const colors = {
             'PR-Agent': 'rgb(59, 130, 246)',  // Blue
             'Shippie': 'rgb(34, 197, 94)',    // Green
-            'AI Review': 'rgb(239, 68, 68)'   // Red
+            'CodeRabbit': 'rgb(239, 68, 68)'  // Red
         };
 
         const color = colors[tool] || `hsl(${Math.random() * 360}, 70%, 50%)`;
