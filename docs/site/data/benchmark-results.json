@@ -1,0 +1,436 @@
+{
+  "metadata": {
+    "timestamp": "2024-02-23T14:30:00Z",
+    "benchmark_version": "1.0.0",
+    "total_runs": 3,
+    "llm_judge_model": "gpt-4o",
+    "challenges_count": 5,
+    "tools_count": 3
+  },
+  "tools": [
+    {
+      "name": "PR-Agent",
+      "version": "0.21.0",
+      "github_url": "https://github.com/qodo-ai/pr-agent",
+      "stars": 10300,
+      "license": "AGPL-3.0",
+      "install_cmd": "pip install pr-agent",
+      "description": "AI-powered code review assistant with comprehensive analysis capabilities"
+    },
+    {
+      "name": "Shippie",
+      "version": "1.5.2",
+      "github_url": "https://github.com/mattzcarey/shippie",
+      "stars": 2300,
+      "license": "MIT",
+      "install_cmd": "npx shippie",
+      "description": "Fast and lightweight AI reviewer focused on catching common issues"
+    },
+    {
+      "name": "AI Review",
+      "version": "0.3.1",
+      "github_url": "https://github.com/Nikita-Filonov/ai-review",
+      "stars": 269,
+      "license": "Apache-2.0",
+      "install_cmd": "pip install xai-review",
+      "description": "Extensible AI code review framework with custom rule support"
+    }
+  ],
+  "challenges": [
+    {
+      "id": "sql-injection-express",
+      "name": "SQL Injection in Express",
+      "category": "Security",
+      "difficulty": "Medium",
+      "ground_truth_issues": 2,
+      "description": "Detects SQL injection vulnerabilities in Express.js application"
+    },
+    {
+      "id": "hardcoded-secrets",
+      "name": "Hardcoded Secrets",
+      "category": "Security",
+      "difficulty": "Easy",
+      "ground_truth_issues": 3,
+      "description": "Identifies hardcoded API keys, passwords, and sensitive data"
+    },
+    {
+      "id": "missing-await-async",
+      "name": "Missing Await in Async",
+      "category": "Bug",
+      "difficulty": "Medium",
+      "ground_truth_issues": 3,
+      "description": "Catches missing await keywords in async function calls"
+    },
+    {
+      "id": "off-by-one-pagination",
+      "name": "Off-by-One Pagination",
+      "category": "Bug",
+      "difficulty": "Medium",
+      "ground_truth_issues": 2,
+      "description": "Finds off-by-one errors in pagination logic"
+    },
+    {
+      "id": "n-plus-one-query",
+      "name": "N+1 Query Problem",
+      "category": "Performance",
+      "difficulty": "Hard",
+      "ground_truth_issues": 2,
+      "description": "Detects N+1 database query performance issues"
+    }
+  ],
+  "results": [
+    {
+      "tool": "PR-Agent",
+      "challenge": "sql-injection-express",
+      "metrics": {
+        "precision": 0.92,
+        "recall": 1.0,
+        "f1_score": 0.96,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "avg_response_time_ms": 3420,
+        "runs": [
+          { "precision": 0.90, "recall": 1.0, "f1_score": 0.95 },
+          { "precision": 0.92, "recall": 1.0, "f1_score": 0.96 },
+          { "precision": 0.94, "recall": 1.0, "f1_score": 0.97 }
+        ]
+      },
+      "findings": [
+        {
+          "type": "SQL Injection",
+          "severity": "critical",
+          "file": "src/routes/users.js",
+          "line": 45,
+          "description": "User input directly concatenated in SQL query"
+        },
+        {
+          "type": "SQL Injection",
+          "severity": "critical",
+          "file": "src/routes/products.js",
+          "line": 87,
+          "description": "Unsanitized parameter in WHERE clause"
+        }
+      ]
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "hardcoded-secrets",
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "true_positives": 3,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "avg_response_time_ms": 2150,
+        "runs": [
+          { "precision": 1.0, "recall": 1.0, "f1_score": 1.0 },
+          { "precision": 1.0, "recall": 1.0, "f1_score": 1.0 },
+          { "precision": 1.0, "recall": 1.0, "f1_score": 1.0 }
+        ]
+      },
+      "findings": [
+        {
+          "type": "Hardcoded Secret",
+          "severity": "high",
+          "file": "config/database.js",
+          "line": 12,
+          "description": "Database password hardcoded"
+        },
+        {
+          "type": "Hardcoded API Key",
+          "severity": "high",
+          "file": "src/services/payment.js",
+          "line": 5,
+          "description": "Stripe API key exposed"
+        },
+        {
+          "type": "Hardcoded Secret",
+          "severity": "high",
+          "file": ".env.example",
+          "line": 8,
+          "description": "JWT secret in example file"
+        }
+      ]
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "missing-await-async",
+      "metrics": {
+        "precision": 0.85,
+        "recall": 0.89,
+        "f1_score": 0.87,
+        "true_positives": 2,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "avg_response_time_ms": 2890,
+        "runs": [
+          { "precision": 0.83, "recall": 0.89, "f1_score": 0.86 },
+          { "precision": 0.85, "recall": 0.89, "f1_score": 0.87 },
+          { "precision": 0.87, "recall": 0.89, "f1_score": 0.88 }
+        ]
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "off-by-one-pagination",
+      "metrics": {
+        "precision": 0.75,
+        "recall": 0.5,
+        "f1_score": 0.60,
+        "true_positives": 1,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "avg_response_time_ms": 2340,
+        "runs": [
+          { "precision": 0.70, "recall": 0.5, "f1_score": 0.58 },
+          { "precision": 0.75, "recall": 0.5, "f1_score": 0.60 },
+          { "precision": 0.80, "recall": 0.5, "f1_score": 0.62 }
+        ]
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "n-plus-one-query",
+      "metrics": {
+        "precision": 0.67,
+        "recall": 0.5,
+        "f1_score": 0.57,
+        "true_positives": 1,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "avg_response_time_ms": 4120,
+        "runs": [
+          { "precision": 0.65, "recall": 0.5, "f1_score": 0.56 },
+          { "precision": 0.67, "recall": 0.5, "f1_score": 0.57 },
+          { "precision": 0.69, "recall": 0.5, "f1_score": 0.58 }
+        ]
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "sql-injection-express",
+      "metrics": {
+        "precision": 0.80,
+        "recall": 0.75,
+        "f1_score": 0.77,
+        "true_positives": 1,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "avg_response_time_ms": 1820,
+        "runs": [
+          { "precision": 0.78, "recall": 0.75, "f1_score": 0.76 },
+          { "precision": 0.80, "recall": 0.75, "f1_score": 0.77 },
+          { "precision": 0.82, "recall": 0.75, "f1_score": 0.78 }
+        ]
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "hardcoded-secrets",
+      "metrics": {
+        "precision": 0.90,
+        "recall": 0.89,
+        "f1_score": 0.90,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "avg_response_time_ms": 980,
+        "runs": [
+          { "precision": 0.88, "recall": 0.89, "f1_score": 0.89 },
+          { "precision": 0.90, "recall": 0.89, "f1_score": 0.90 },
+          { "precision": 0.92, "recall": 0.89, "f1_score": 0.91 }
+        ]
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "missing-await-async",
+      "metrics": {
+        "precision": 0.95,
+        "recall": 0.78,
+        "f1_score": 0.86,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "avg_response_time_ms": 1340,
+        "runs": [
+          { "precision": 0.93, "recall": 0.78, "f1_score": 0.85 },
+          { "precision": 0.95, "recall": 0.78, "f1_score": 0.86 },
+          { "precision": 0.97, "recall": 0.78, "f1_score": 0.87 }
+        ]
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "off-by-one-pagination",
+      "metrics": {
+        "precision": 0.50,
+        "recall": 0.25,
+        "f1_score": 0.33,
+        "true_positives": 0,
+        "false_positives": 1,
+        "false_negatives": 2,
+        "avg_response_time_ms": 1120,
+        "runs": [
+          { "precision": 0.48, "recall": 0.25, "f1_score": 0.32 },
+          { "precision": 0.50, "recall": 0.25, "f1_score": 0.33 },
+          { "precision": 0.52, "recall": 0.25, "f1_score": 0.34 }
+        ]
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "n-plus-one-query",
+      "metrics": {
+        "precision": 0.33,
+        "recall": 0.25,
+        "f1_score": 0.28,
+        "true_positives": 0,
+        "false_positives": 2,
+        "false_negatives": 2,
+        "avg_response_time_ms": 2340,
+        "runs": [
+          { "precision": 0.31, "recall": 0.25, "f1_score": 0.27 },
+          { "precision": 0.33, "recall": 0.25, "f1_score": 0.28 },
+          { "precision": 0.35, "recall": 0.25, "f1_score": 0.29 }
+        ]
+      }
+    },
+    {
+      "tool": "AI Review",
+      "challenge": "sql-injection-express",
+      "metrics": {
+        "precision": 0.70,
+        "recall": 0.75,
+        "f1_score": 0.72,
+        "true_positives": 1,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "avg_response_time_ms": 2670,
+        "runs": [
+          { "precision": 0.68, "recall": 0.75, "f1_score": 0.71 },
+          { "precision": 0.70, "recall": 0.75, "f1_score": 0.72 },
+          { "precision": 0.72, "recall": 0.75, "f1_score": 0.73 }
+        ]
+      }
+    },
+    {
+      "tool": "AI Review",
+      "challenge": "hardcoded-secrets",
+      "metrics": {
+        "precision": 0.85,
+        "recall": 0.67,
+        "f1_score": 0.75,
+        "true_positives": 2,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "avg_response_time_ms": 1560,
+        "runs": [
+          { "precision": 0.83, "recall": 0.67, "f1_score": 0.74 },
+          { "precision": 0.85, "recall": 0.67, "f1_score": 0.75 },
+          { "precision": 0.87, "recall": 0.67, "f1_score": 0.76 }
+        ]
+      }
+    },
+    {
+      "tool": "AI Review",
+      "challenge": "missing-await-async",
+      "metrics": {
+        "precision": 0.60,
+        "recall": 0.56,
+        "f1_score": 0.58,
+        "true_positives": 1,
+        "false_positives": 1,
+        "false_negatives": 2,
+        "avg_response_time_ms": 1890,
+        "runs": [
+          { "precision": 0.58, "recall": 0.56, "f1_score": 0.57 },
+          { "precision": 0.60, "recall": 0.56, "f1_score": 0.58 },
+          { "precision": 0.62, "recall": 0.56, "f1_score": 0.59 }
+        ]
+      }
+    },
+    {
+      "tool": "AI Review",
+      "challenge": "off-by-one-pagination",
+      "metrics": {
+        "precision": 0.67,
+        "recall": 0.5,
+        "f1_score": 0.57,
+        "true_positives": 1,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "avg_response_time_ms": 1440,
+        "runs": [
+          { "precision": 0.65, "recall": 0.5, "f1_score": 0.56 },
+          { "precision": 0.67, "recall": 0.5, "f1_score": 0.57 },
+          { "precision": 0.69, "recall": 0.5, "f1_score": 0.58 }
+        ]
+      }
+    },
+    {
+      "tool": "AI Review",
+      "challenge": "n-plus-one-query",
+      "metrics": {
+        "precision": 0.50,
+        "recall": 0.25,
+        "f1_score": 0.33,
+        "true_positives": 0,
+        "false_positives": 1,
+        "false_negatives": 2,
+        "avg_response_time_ms": 3120,
+        "runs": [
+          { "precision": 0.48, "recall": 0.25, "f1_score": 0.32 },
+          { "precision": 0.50, "recall": 0.25, "f1_score": 0.33 },
+          { "precision": 0.52, "recall": 0.25, "f1_score": 0.34 }
+        ]
+      }
+    }
+  ],
+  "overall_scores": [
+    {
+      "tool": "PR-Agent",
+      "metrics": {
+        "avg_precision": 0.84,
+        "avg_recall": 0.73,
+        "avg_f1_score": 0.78,
+        "total_true_positives": 7,
+        "total_false_positives": 4,
+        "total_false_negatives": 5,
+        "avg_response_time_ms": 2963,
+        "best_category": "Security",
+        "worst_category": "Performance"
+      }
+    },
+    {
+      "tool": "Shippie",
+      "metrics": {
+        "avg_precision": 0.64,
+        "avg_recall": 0.49,
+        "avg_f1_score": 0.53,
+        "total_true_positives": 5,
+        "total_false_positives": 4,
+        "total_false_negatives": 7,
+        "avg_response_time_ms": 1476,
+        "best_category": "Security",
+        "worst_category": "Performance"
+      }
+    },
+    {
+      "tool": "AI Review",
+      "metrics": {
+        "avg_precision": 0.66,
+        "avg_recall": 0.55,
+        "avg_f1_score": 0.59,
+        "total_true_positives": 5,
+        "total_false_positives": 5,
+        "total_false_negatives": 6,
+        "avg_response_time_ms": 2141,
+        "best_category": "Security",
+        "worst_category": "Performance"
+      }
+    }
+  ]
+}

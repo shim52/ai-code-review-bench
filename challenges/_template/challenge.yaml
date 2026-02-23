@@ -1,0 +1,21 @@
+id: template-id
+name: "Template Challenge Name"
+description: "Description of what this challenge tests."
+language: typescript
+difficulty: medium
+categories: [category1, category2]
+
+pr:
+  title: "PR title"
+  description: "PR description."
+
+issues:
+  - id: issue-id-1
+    severity: high
+    category: security
+    file: src/example.ts
+    line_start: 10
+    line_end: 15
+    title: "Issue title"
+    description: "Description of the issue and why it's a problem."
+    keywords: [keyword1, keyword2]

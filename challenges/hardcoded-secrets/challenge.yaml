@@ -1,0 +1,41 @@
+id: hardcoded-secrets
+name: "Hardcoded API Keys and Secrets"
+description: "PR adds a configuration file with hardcoded API keys, database passwords, and JWT secrets."
+language: typescript
+difficulty: easy
+categories: [security, secrets]
+
+pr:
+  title: "Add third-party integrations config"
+  description: "Set up configuration for Stripe, SendGrid, and JWT auth."
+
+issues:
+  - id: hardcoded-stripe-key
+    severity: critical
+    category: security
+    file: src/config.ts
+    line_start: 3
+    line_end: 5
+    title: "Hardcoded Stripe secret API key"
+    description: "The Stripe secret key is hardcoded in the source file instead of being loaded from environment variables."
+    keywords: [hardcoded, secret, api key, stripe, environment variable]
+
+  - id: hardcoded-db-password
+    severity: critical
+    category: security
+    file: src/config.ts
+    line_start: 8
+    line_end: 8
+    title: "Hardcoded database password"
+    description: "The database password is hardcoded in plain text."
+    keywords: [hardcoded, password, database, credentials, plain text]
+
+  - id: hardcoded-jwt-secret
+    severity: high
+    category: security
+    file: src/config.ts
+    line_start: 12
+    line_end: 12
+    title: "Hardcoded JWT signing secret"
+    description: "The JWT secret used for signing tokens is hardcoded and weak."
+    keywords: [hardcoded, jwt, secret, signing, token]

@@ -1,0 +1,31 @@
+id: sql-injection-express
+name: "SQL Injection in Express.js Route Handler"
+description: "PR introduces a user search endpoint that uses string interpolation to build SQL queries, creating a SQL injection vulnerability."
+language: typescript
+difficulty: medium
+categories: [security, sql-injection]
+
+pr:
+  title: "Add user search endpoint"
+  description: "Added a new endpoint to search users by name."
+
+issues:
+  - id: sqli-user-search
+    severity: critical
+    category: security
+    file: src/routes/users.ts
+    line_start: 12
+    line_end: 15
+    title: "SQL injection via unsanitized user input"
+    description: "The name parameter from the query string is interpolated directly into the SQL query without parameterization, allowing SQL injection attacks."
+    keywords: [sql injection, parameterized, sanitize, interpolation]
+
+  - id: error-info-leak
+    severity: medium
+    category: security
+    file: src/routes/users.ts
+    line_start: 18
+    line_end: 20
+    title: "Database error details leaked to client"
+    description: "The catch block sends the raw database error message to the client, which could reveal internal database structure."
+    keywords: [error, information disclosure, leak, internal]

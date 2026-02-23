@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Community Discussions
+    url: https://github.com/yourusername/code-review-benchmark/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📖 Documentation
+    url: https://github.com/yourusername/code-review-benchmark/tree/main/docs
+    about: Check our documentation for guides and tutorials
+  - name: 🔒 Security Issue
+    url: mailto:security@example.com
+    about: Please report security vulnerabilities privately via email

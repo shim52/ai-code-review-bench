@@ -1,0 +1,31 @@
+id: off-by-one-pagination
+name: "Off-by-One Error in Pagination"
+description: "PR adds a paginated list endpoint with an off-by-one error that causes the last item to be duplicated across pages or an item to be skipped."
+language: typescript
+difficulty: medium
+categories: [bug, pagination]
+
+pr:
+  title: "Add pagination to products API"
+  description: "Implemented cursor-based pagination for the products listing endpoint."
+
+issues:
+  - id: off-by-one-offset
+    severity: high
+    category: bug
+    file: src/routes/products.ts
+    line_start: 14
+    line_end: 14
+    title: "Off-by-one error in pagination offset calculation"
+    description: "The offset is calculated as (page - 1) * pageSize + 1, but the +1 causes the first item of each page (except page 1) to skip one record."
+    keywords: [off-by-one, pagination, offset, skip, duplicate]
+
+  - id: total-pages-calc
+    severity: medium
+    category: bug
+    file: src/routes/products.ts
+    line_start: 18
+    line_end: 18
+    title: "Incorrect total pages calculation"
+    description: "Math.round is used instead of Math.ceil for total pages, which can undercount the number of pages when there is a remainder."
+    keywords: [pagination, total pages, math, ceil, round]

@@ -1,0 +1,31 @@
+id: n-plus-one-query
+name: "N+1 Database Query Pattern"
+description: "PR adds an endpoint that fetches a list of orders and then queries for each order's items individually inside a loop, creating an N+1 query problem."
+language: typescript
+difficulty: hard
+categories: [performance, database]
+
+pr:
+  title: "Add order details to order listing"
+  description: "Enhanced the orders endpoint to include line items for each order."
+
+issues:
+  - id: n-plus-one-items
+    severity: high
+    category: performance
+    file: src/routes/orders.ts
+    line_start: 13
+    line_end: 19
+    title: "N+1 query pattern when fetching order items"
+    description: "For each order, a separate query fetches its items. With N orders, this results in N+1 database queries instead of using a JOIN or batch query."
+    keywords: [n+1, query, loop, performance, join, batch, database]
+
+  - id: no-pagination-orders
+    severity: medium
+    category: performance
+    file: src/routes/orders.ts
+    line_start: 10
+    line_end: 10
+    title: "Unbounded query fetches all orders without limit"
+    description: "The query fetches ALL orders without pagination or limit, which will cause performance issues as data grows."
+    keywords: [pagination, limit, unbounded, performance, scalability]

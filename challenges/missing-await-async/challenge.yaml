@@ -1,0 +1,41 @@
+id: missing-await-async
+name: "Missing Await on Async Calls"
+description: "PR adds a user registration flow that forgets to await several async operations, causing race conditions and silent failures."
+language: typescript
+difficulty: medium
+categories: [bug, async]
+
+pr:
+  title: "Add user registration with email verification"
+  description: "Implemented user signup flow with email confirmation."
+
+issues:
+  - id: missing-await-save
+    severity: high
+    category: bug
+    file: src/services/auth.ts
+    line_start: 15
+    line_end: 15
+    title: "Missing await on user.save()"
+    description: "The user.save() call is not awaited, so the function may return before the user is persisted to the database."
+    keywords: [missing await, async, save, promise, race condition]
+
+  - id: missing-await-email
+    severity: high
+    category: bug
+    file: src/services/auth.ts
+    line_start: 16
+    line_end: 16
+    title: "Missing await on sendVerificationEmail()"
+    description: "The email sending call is not awaited. Errors will be unhandled rejected promises."
+    keywords: [missing await, async, email, promise, unhandled]
+
+  - id: missing-await-log
+    severity: medium
+    category: bug
+    file: src/services/auth.ts
+    line_start: 17
+    line_end: 17
+    title: "Missing await on auditLog.record()"
+    description: "The audit log write is not awaited, so it may fail silently or execute after the response is sent."
+    keywords: [missing await, async, audit, log, promise]
