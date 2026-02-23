@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     initMetricSelector();
     initModal();
 
+    // Animate hero stats
+    animateHeroStats();
+
     // Render initial content
     renderLeaderboard();
     renderChallenges();
@@ -36,6 +39,32 @@ function initTheme() {
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
+    });
+}
+
+// ===== Animate Hero Stats =====
+function animateHeroStats() {
+    const stats = [
+        { selector: '.hero-stats .stat:nth-child(1) .stat-value', target: 3, duration: 800 },
+        { selector: '.hero-stats .stat:nth-child(2) .stat-value', target: 5, duration: 1000 },
+        { selector: '.hero-stats .stat:nth-child(3) .stat-value', target: 45, duration: 1200 },
+        { selector: '.hero-stats .stat:nth-child(4) .stat-value', target: 12, duration: 1400 }
+    ];
+
+    stats.forEach(stat => {
+        const element = document.querySelector(stat.selector);
+        if (!element) return;
+
+        let current = 0;
+        const increment = stat.target / (stat.duration / 16); // 60fps
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= stat.target) {
+                current = stat.target;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+        }, 16);
     });
 }
 

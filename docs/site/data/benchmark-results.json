@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2024-02-23T14:30:00Z",
+    "timestamp": "2026-02-23T14:30:00Z",
     "benchmark_version": "1.0.0",
     "total_runs": 3,
     "llm_judge_model": "gpt-4o",
@@ -43,7 +43,7 @@
       "category": "Security",
       "difficulty": "Medium",
       "ground_truth_issues": 2,
-      "description": "Detects SQL injection vulnerabilities in Express.js application"
+      "description": "Can your AI reviewer catch a classic Bobby Tables attack? Tests for SQL injection detection"
     },
     {
       "id": "hardcoded-secrets",
@@ -51,7 +51,7 @@
       "category": "Security",
       "difficulty": "Easy",
       "ground_truth_issues": 3,
-      "description": "Identifies hardcoded API keys, passwords, and sensitive data"
+      "description": "Spot the secrets hiding in plain sight! Can AI find those AWS keys you forgot to hide?"
     },
     {
       "id": "missing-await-async",
@@ -59,7 +59,7 @@
       "category": "Bug",
       "difficulty": "Medium",
       "ground_truth_issues": 3,
-      "description": "Catches missing await keywords in async function calls"
+      "description": "The promise that never resolves... Can AI catch those sneaky missing awaits?"
     },
     {
       "id": "off-by-one-pagination",
@@ -67,7 +67,7 @@
       "category": "Bug",
       "difficulty": "Medium",
       "ground_truth_issues": 2,
-      "description": "Finds off-by-one errors in pagination logic"
+      "description": "Is it page 10 or page 11? Classic fence-post errors that make devs cry"
     },
     {
       "id": "n-plus-one-query",
@@ -75,7 +75,7 @@
       "category": "Performance",
       "difficulty": "Hard",
       "ground_truth_issues": 2,
-      "description": "Detects N+1 database query performance issues"
+      "description": "Death by a thousand queries! Can AI spot the ORM performance killer?"
     }
   ],
   "results": [
