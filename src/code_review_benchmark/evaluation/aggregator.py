@@ -56,13 +56,12 @@ def compute_group_metrics(
         round(f1, 4),
         total_findings,
         total_matched,
-        total_gt
+        total_gt,
     )
 
 
 def compute_tool_breakdown(
-    tool_results: List[ChallengeToolResult],
-    challenges_map: Dict[str, Challenge]
+    tool_results: List[ChallengeToolResult], challenges_map: Dict[str, Challenge]
 ) -> MetricsBreakdown:
     """Compute metrics breakdown by category, severity, and language for a tool."""
 
@@ -92,54 +91,58 @@ def compute_tool_breakdown(
     category_metrics = []
     for cat_name, cat_results in sorted(by_category.items()):
         p, r, f1, findings, matched, gt = compute_group_metrics(cat_results)
-        category_metrics.append(CategoryMetrics(
-            name=cat_name,
-            total_ground_truths=gt,
-            total_findings=findings,
-            total_matched=matched,
-            precision=p,
-            recall=r,
-            f1=f1,
-            challenges_count=len(set(r.challenge_id for r in cat_results))
-        ))
-
-    # Compute metrics for each severity
-    severity_metrics = []
-    severity_order = ['critical', 'high', 'medium', 'low', 'info']
-    for sev in severity_order:
-        if sev in by_severity:
-            sev_results = by_severity[sev]
-            p, r, f1, findings, matched, gt = compute_group_metrics(sev_results)
-            severity_metrics.append(CategoryMetrics(
-                name=sev,
+        category_metrics.append(
+            CategoryMetrics(
+                name=cat_name,
                 total_ground_truths=gt,
                 total_findings=findings,
                 total_matched=matched,
                 precision=p,
                 recall=r,
                 f1=f1,
-                challenges_count=len(set(r.challenge_id for r in sev_results))
-            ))
+                challenges_count=len(set(r.challenge_id for r in cat_results)),
+            )
+        )
+
+    # Compute metrics for each severity
+    severity_metrics = []
+    severity_order = ["critical", "high", "medium", "low", "info"]
+    for sev in severity_order:
+        if sev in by_severity:
+            sev_results = by_severity[sev]
+            p, r, f1, findings, matched, gt = compute_group_metrics(sev_results)
+            severity_metrics.append(
+                CategoryMetrics(
+                    name=sev,
+                    total_ground_truths=gt,
+                    total_findings=findings,
+                    total_matched=matched,
+                    precision=p,
+                    recall=r,
+                    f1=f1,
+                    challenges_count=len(set(r.challenge_id for r in sev_results)),
+                )
+            )
 
     # Compute metrics for each language
     language_metrics = []
     for lang_name, lang_results in sorted(by_language.items()):
         p, r, f1, findings, matched, gt = compute_group_metrics(lang_results)
-        language_metrics.append(CategoryMetrics(
-            name=lang_name,
-            total_ground_truths=gt,
-            total_findings=findings,
-            total_matched=matched,
-            precision=p,
-            recall=r,
-            f1=f1,
-            challenges_count=len(set(r.challenge_id for r in lang_results))
-        ))
+        language_metrics.append(
+            CategoryMetrics(
+                name=lang_name,
+                total_ground_truths=gt,
+                total_findings=findings,
+                total_matched=matched,
+                precision=p,
+                recall=r,
+                f1=f1,
+                challenges_count=len(set(r.challenge_id for r in lang_results)),
+            )
+        )
 
     return MetricsBreakdown(
-        by_category=category_metrics,
-        by_severity=severity_metrics,
-        by_language=language_metrics
+        by_category=category_metrics, by_severity=severity_metrics, by_language=language_metrics
     )
 
 
@@ -219,12 +222,8 @@ def aggregate_results(
                 stddev_precision=(
                     round(statistics.stdev(precisions), 4) if len(precisions) > 1 else 0.0
                 ),
-                stddev_recall=(
-                    round(statistics.stdev(recalls), 4) if len(recalls) > 1 else 0.0
-                ),
-                stddev_f1=(
-                    round(statistics.stdev(f1s), 4) if len(f1s) > 1 else 0.0
-                ),
+                stddev_recall=(round(statistics.stdev(recalls), 4) if len(recalls) > 1 else 0.0),
+                stddev_f1=(round(statistics.stdev(f1s), 4) if len(f1s) > 1 else 0.0),
                 per_challenge=tool_results,
                 metrics_breakdown=tool_breakdown,
             )

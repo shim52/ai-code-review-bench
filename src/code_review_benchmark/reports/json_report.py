@@ -35,13 +35,13 @@ def generate_dashboard_json(
             "total_runs": report.num_runs,
             "llm_judge_model": report.judge_model,
             "challenges_count": len(report.challenges),
-            "tools_count": len(report.tools)
+            "tools_count": len(report.tools),
         },
         "tools": tools_metadata or [],
         "challenges": challenges or [],
         "results": [],
         "overall_scores": [],
-        "metrics_breakdown": None
+        "metrics_breakdown": None,
     }
 
     # Add per-challenge results
@@ -56,7 +56,7 @@ def generate_dashboard_json(
                 "total_true_positives": tool_score.total_matched,
                 "total_false_positives": tool_score.total_findings - tool_score.total_matched,
                 "total_false_negatives": tool_score.total_ground_truths - tool_score.total_matched,
-            }
+            },
         }
 
         # Add breakdown if available
@@ -68,7 +68,7 @@ def generate_dashboard_json(
                         "precision": cat.precision,
                         "recall": cat.recall,
                         "f1_score": cat.f1,
-                        "challenges": cat.challenges_count
+                        "challenges": cat.challenges_count,
                     }
                     for cat in tool_score.metrics_breakdown.by_category
                 ],
@@ -78,7 +78,7 @@ def generate_dashboard_json(
                         "precision": sev.precision,
                         "recall": sev.recall,
                         "f1_score": sev.f1,
-                        "issues": sev.total_ground_truths
+                        "issues": sev.total_ground_truths,
                     }
                     for sev in tool_score.metrics_breakdown.by_severity
                 ],
@@ -88,34 +88,32 @@ def generate_dashboard_json(
                         "precision": lang.precision,
                         "recall": lang.recall,
                         "f1_score": lang.f1,
-                        "challenges": lang.challenges_count
+                        "challenges": lang.challenges_count,
                     }
                     for lang in tool_score.metrics_breakdown.by_language
-                ]
+                ],
             }
 
         dashboard_data["overall_scores"].append(overall)
 
         # Add per-challenge results
         for challenge_result in tool_score.per_challenge:
-            dashboard_data["results"].append({
-                "tool": tool_score.tool,
-                "challenge": challenge_result.challenge_id,
-                "metrics": {
-                    "precision": challenge_result.precision,
-                    "recall": challenge_result.recall,
-                    "f1_score": challenge_result.f1,
-                    "true_positives": sum(
-                        1 for m in challenge_result.matches if m.matched
-                    ),
-                    "false_positives": challenge_result.findings - sum(
-                        1 for m in challenge_result.matches if m.matched
-                    ),
-                    "false_negatives": len(challenge_result.matches) - sum(
-                        1 for m in challenge_result.matches if m.matched
-                    ),
+            dashboard_data["results"].append(
+                {
+                    "tool": tool_score.tool,
+                    "challenge": challenge_result.challenge_id,
+                    "metrics": {
+                        "precision": challenge_result.precision,
+                        "recall": challenge_result.recall,
+                        "f1_score": challenge_result.f1,
+                        "true_positives": sum(1 for m in challenge_result.matches if m.matched),
+                        "false_positives": challenge_result.findings
+                        - sum(1 for m in challenge_result.matches if m.matched),
+                        "false_negatives": len(challenge_result.matches)
+                        - sum(1 for m in challenge_result.matches if m.matched),
+                    },
                 }
-            })
+            )
 
     # Add overall breakdown across all tools
     if report.metrics_breakdown:
@@ -128,7 +126,7 @@ def generate_dashboard_json(
                     "precision": cat.precision,
                     "recall": cat.recall,
                     "f1_score": cat.f1,
-                    "challenges": cat.challenges_count
+                    "challenges": cat.challenges_count,
                 }
                 for cat in report.metrics_breakdown.by_category
             ],
@@ -139,7 +137,7 @@ def generate_dashboard_json(
                     "total_found": sev.total_matched,
                     "precision": sev.precision,
                     "recall": sev.recall,
-                    "f1_score": sev.f1
+                    "f1_score": sev.f1,
                 }
                 for sev in report.metrics_breakdown.by_severity
             ],
@@ -151,10 +149,10 @@ def generate_dashboard_json(
                     "precision": lang.precision,
                     "recall": lang.recall,
                     "f1_score": lang.f1,
-                    "challenges": lang.challenges_count
+                    "challenges": lang.challenges_count,
                 }
                 for lang in report.metrics_breakdown.by_language
-            ]
+            ],
         }
 
     return json.dumps(dashboard_data, indent=2)

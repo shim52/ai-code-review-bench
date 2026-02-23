@@ -33,9 +33,7 @@ def report_cmd(
 
     report_file = run_path / "report.json"
     if not report_file.exists():
-        console.print(
-            f"[red]No report.json found in {run_path}. Run `crb evaluate` first.[/red]"
-        )
+        console.print(f"[red]No report.json found in {run_path}. Run `crb evaluate` first.[/red]")
         raise typer.Exit(1)
 
     report = BenchmarkReport.model_validate(json.loads(report_file.read_text()))
