@@ -29,7 +29,6 @@ def setup() -> None:
     import code_review_benchmark.runners.coderabbit  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
-    import code_review_benchmark.runners.xai_review  # noqa: F401
     from code_review_benchmark.runners.registry import list_runners
 
     console = Console()
@@ -61,7 +60,6 @@ def list_tools() -> None:
     import code_review_benchmark.runners.coderabbit  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
-    import code_review_benchmark.runners.xai_review  # noqa: F401
     from code_review_benchmark.runners.registry import list_runners
 
     console = Console()

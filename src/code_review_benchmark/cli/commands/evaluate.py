@@ -28,7 +28,6 @@ def evaluate_cmd(
     from code_review_benchmark.parsers.coderabbit import CodeRabbitParser
     from code_review_benchmark.parsers.pr_agent import PRAgentParser
     from code_review_benchmark.parsers.shippie import ShippieParser
-    from code_review_benchmark.parsers.xai_review import XAIReviewParser
     from code_review_benchmark.runners.base import RunResult
 
     project_root = Path(__file__).resolve().parents[4]
@@ -46,7 +45,6 @@ def evaluate_cmd(
         "coderabbit": CodeRabbitParser(),
         "pr-agent": PRAgentParser(),
         "shippie": ShippieParser(),
-        "xai-review": XAIReviewParser(),
     }
 
     # Load challenges

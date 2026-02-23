@@ -27,7 +27,6 @@ def run_cmd(
     import code_review_benchmark.runners.coderabbit  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
-    import code_review_benchmark.runners.xai_review  # noqa: F401
     from code_review_benchmark.challenge_repo.builder import build_challenge_repo
     from code_review_benchmark.models.challenge import load_challenges
     from code_review_benchmark.runners.registry import available_tool_names, get_runner

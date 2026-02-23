@@ -18,12 +18,12 @@ class PRAgentRunner(AbstractToolRunner):
 
     @property
     def version_command(self) -> list[str]:
-        return ["python", "-m", "pr_agent", "--version"]
+        return ["pr-agent", "--help"]
 
     def is_available(self) -> bool:
         try:
             subprocess.run(
-                ["python", "-m", "pr_agent", "--help"],
+                ["pr-agent", "--help"],
                 capture_output=True,
                 timeout=15,
             )
@@ -42,16 +42,16 @@ class PRAgentRunner(AbstractToolRunner):
         if model:
             env["OPENAI_MODEL"] = model
 
-        # PR-Agent supports local git provider via --pr_url pointing to local path
+        # PR-Agent's handle_request calls apply_repo_settings() before parsing
+        # CLI config overrides, so we must set the git provider via env vars
+        # to ensure the local provider is selected before URL-based detection.
+        env["CONFIG.GIT_PROVIDER"] = "local"
+        env["LOCAL.BRANCH"] = pr_branch
+
         cmd = [
-            "python",
-            "-m",
-            "pr_agent",
-            "--pr_url",
-            str(repo_path),
+            "pr-agent",
+            f"--pr_url={repo_path}",
             "review",
-            "--git_provider.git_provider=local",
-            f"--local.branch={pr_branch}",
         ]
 
         try:
@@ -68,7 +68,6 @@ class PRAgentRunner(AbstractToolRunner):
         except FileNotFoundError:
             return RunResult(tool=self.name, success=False, error="pr-agent not found")
 
-        # PR-Agent writes review output to stdout and optionally to review.md
         output_text = proc.stdout
         output_files: list[Path] = []
         review_md = repo_path / "review.md"

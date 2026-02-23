@@ -45,6 +45,7 @@ class ShippieRunner(AbstractToolRunner):
         cmd = [
             "npx",
             "shippie",
+            "review",
             "--platform",
             "local",
             "--base-branch",
