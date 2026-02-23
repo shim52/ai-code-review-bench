@@ -54,9 +54,7 @@ class ShippieParser(AbstractOutputParser):
 
         return findings
 
-    def _parse_file_section(
-        self, file_path: str, section: str
-    ) -> list[NormalizedFinding]:
+    def _parse_file_section(self, file_path: str, section: str) -> list[NormalizedFinding]:
         findings: list[NormalizedFinding] = []
 
         # Parse line references: "Line 12:", "Lines 12-15:", or "[L12]"
@@ -66,9 +64,7 @@ class ShippieParser(AbstractOutputParser):
             if not comment or len(comment) < 10:
                 continue
 
-            line_match = re.search(
-                r"[Ll]ines?\s*(\d+)(?:\s*-\s*(\d+))?", comment
-            )
+            line_match = re.search(r"[Ll]ines?\s*(\d+)(?:\s*-\s*(\d+))?", comment)
             line_start = int(line_match.group(1)) if line_match else None
             line_end = int(line_match.group(2)) if line_match and line_match.group(2) else None
 

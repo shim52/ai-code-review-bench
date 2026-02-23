@@ -51,7 +51,9 @@ class PRAgentRunner(AbstractToolRunner):
         # LocalGitProvider reads head_branch_name from repo.head.ref.name.
         subprocess.run(
             ["git", "checkout", pr_branch],
-            capture_output=True, timeout=10, cwd=repo_path,
+            capture_output=True,
+            timeout=10,
+            cwd=repo_path,
         )
 
         # In local mode, LocalGitProvider.__init__(target_branch_name) is called

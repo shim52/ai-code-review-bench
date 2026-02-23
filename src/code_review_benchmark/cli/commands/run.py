@@ -122,9 +122,7 @@ def run_cmd(
                     )
 
                     status = "[green]OK[/green]" if result.success else "[red]FAIL[/red]"
-                    console.print(
-                        f"  {runner.name} × {challenge.id} run {run_idx}: {status}"
-                    )
+                    console.print(f"  {runner.name} × {challenge.id} run {run_idx}: {status}")
                     progress.advance(task)
 
     console.print(f"\n[green]Done![/green] Results in {run_dir}")

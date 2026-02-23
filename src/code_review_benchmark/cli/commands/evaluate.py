@@ -91,8 +91,7 @@ def evaluate_cmd(
                 findings = parser.parse(raw_result)
 
                 console.print(
-                    f"  {tool_name} × {challenge_id} run {run_idx}: "
-                    f"{len(findings)} findings"
+                    f"  {tool_name} × {challenge_id} run {run_idx}: {len(findings)} findings"
                 )
 
                 # Heuristic matching

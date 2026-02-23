@@ -45,7 +45,9 @@ class ShippieRunner(AbstractToolRunner):
         # Ensure we're on the PR branch.
         subprocess.run(
             ["git", "checkout", pr_branch],
-            capture_output=True, timeout=10, cwd=repo_path,
+            capture_output=True,
+            timeout=10,
+            cwd=repo_path,
         )
 
         # Shippie local mode hardcodes `git diff --cached` (staged changes only).
@@ -53,7 +55,9 @@ class ShippieRunner(AbstractToolRunner):
         # last commit so the diff appears as staged changes.
         subprocess.run(
             ["git", "reset", "--soft", "HEAD~1"],
-            capture_output=True, timeout=10, cwd=repo_path,
+            capture_output=True,
+            timeout=10,
+            cwd=repo_path,
         )
 
         cmd = [

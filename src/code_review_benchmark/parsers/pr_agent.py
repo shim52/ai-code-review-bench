@@ -36,9 +36,7 @@ class PRAgentParser(AbstractOutputParser):
 
         # PR-Agent outputs markdown with tables and code suggestions.
         # Parse table rows: | severity | file:line | description |
-        table_pattern = re.compile(
-            r"\|[^|]*\|[^|]*\|[^|]*\|", re.MULTILINE
-        )
+        table_pattern = re.compile(r"\|[^|]*\|[^|]*\|[^|]*\|", re.MULTILINE)
         rows = table_pattern.findall(text)
         for row in rows:
             cells = [c.strip() for c in row.split("|") if c.strip()]
@@ -52,9 +50,7 @@ class PRAgentParser(AbstractOutputParser):
                 findings.append(finding)
 
         # Also parse code suggestion blocks
-        suggestion_pattern = re.compile(
-            r"### Suggestion\s*\n(.*?)(?=### |$)", re.DOTALL
-        )
+        suggestion_pattern = re.compile(r"### Suggestion\s*\n(.*?)(?=### |$)", re.DOTALL)
         for match in suggestion_pattern.finditer(text):
             finding = self._parse_suggestion_block(match.group(1))
             if finding:

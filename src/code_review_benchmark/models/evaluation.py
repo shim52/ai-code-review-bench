@@ -43,6 +43,7 @@ class ToolScore(BaseModel):
 
 class CategoryMetrics(BaseModel):
     """Metrics for a specific category, severity, or language."""
+
     name: str
     total_ground_truths: int = 0
     total_findings: int = 0
@@ -55,6 +56,7 @@ class CategoryMetrics(BaseModel):
 
 class MetricsBreakdown(BaseModel):
     """Breakdown of metrics by different dimensions."""
+
     by_category: list[CategoryMetrics] = Field(default_factory=list)
     by_severity: list[CategoryMetrics] = Field(default_factory=list)
     by_language: list[CategoryMetrics] = Field(default_factory=list)

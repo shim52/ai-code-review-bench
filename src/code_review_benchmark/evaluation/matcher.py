@@ -114,8 +114,7 @@ def _keyword_overlap(gt: GroundTruthIssue, finding: NormalizedFinding) -> float:
         return 0.0
 
     search_text = (
-        f"{finding.title} {finding.description} {finding.raw_text} "
-        f"{finding.category or ''}"
+        f"{finding.title} {finding.description} {finding.raw_text} {finding.category or ''}"
     ).lower()
 
     hits = sum(1 for kw in gt.keywords if kw.lower() in search_text)

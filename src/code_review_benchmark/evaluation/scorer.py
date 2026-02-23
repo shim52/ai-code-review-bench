@@ -22,11 +22,7 @@ def score_challenge_run(
     # A finding can match at most one ground truth.
     precision = true_positives / num_findings if num_findings > 0 else 0.0
 
-    f1 = (
-        2 * precision * recall / (precision + recall)
-        if (precision + recall) > 0
-        else 0.0
-    )
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
 
     return ChallengeToolResult(
         challenge_id=challenge_id,

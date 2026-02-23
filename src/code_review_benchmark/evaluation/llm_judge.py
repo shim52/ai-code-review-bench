@@ -112,12 +112,12 @@ def _build_user_message(gt: GroundTruthIssue, finding: NormalizedFinding) -> str
 - **Severity**: {gt.severity.value}
 - **Category**: {gt.category}
 - **Description**: {gt.description}
-- **Keywords**: {', '.join(gt.keywords)}
+- **Keywords**: {", ".join(gt.keywords)}
 
 ## Tool Finding
 - **Tool**: {finding.tool}
 - **File**: {finding.file} (line {finding.line_start})
-- **Severity**: {finding.severity.value if finding.severity else 'N/A'}
+- **Severity**: {finding.severity.value if finding.severity else "N/A"}
 - **Title**: {finding.title}
 - **Description**: {finding.description}
 
