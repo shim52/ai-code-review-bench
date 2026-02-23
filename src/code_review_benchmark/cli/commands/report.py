@@ -20,9 +20,12 @@ def report_cmd(
     output_file: Optional[str] = typer.Option(None, "--output", "-o", help="Output file path"),
 ) -> None:
     """Generate comparison reports from evaluated results."""
-    from code_review_benchmark.models.evaluation import BenchmarkReport
     from code_review_benchmark.models.challenge import load_challenges
-    from code_review_benchmark.reports.json_report import generate_json_report, generate_dashboard_json
+    from code_review_benchmark.models.evaluation import BenchmarkReport
+    from code_review_benchmark.reports.json_report import (
+        generate_dashboard_json,
+        generate_json_report,
+    )
     from code_review_benchmark.reports.markdown import generate_markdown_report
 
     project_root = Path(__file__).resolve().parents[4]

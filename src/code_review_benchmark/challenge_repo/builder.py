@@ -31,7 +31,7 @@ def build_challenge_repo(challenge: Challenge, base_tmp: Path | None = None) -> 
     Returns a ChallengeRepo with paths and branch names.
     """
     tmp_dir = Path(tempfile.mkdtemp(prefix=f"crb-{challenge.id}-", dir=base_tmp))
-    repo = Repo.init(tmp_dir)
+    repo = Repo.init(tmp_dir, initial_branch="main")
     repo.config_writer().set_value("user", "name", "CRB").release()
     repo.config_writer().set_value("user", "email", "crb@benchmark").release()
 

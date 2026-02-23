@@ -107,7 +107,8 @@ def generate_markdown_report(report: BenchmarkReport) -> str:
                 lines.append("|----------|-----------|--------|-----|")
                 for sev in tool.metrics_breakdown.by_severity:
                     lines.append(
-                        f"| {sev.name.capitalize()} | {sev.precision:.2%} | {sev.recall:.2%} | {sev.f1:.2%} |"
+                        f"| {sev.name.capitalize()} | {sev.precision:.2%}"
+                        f" | {sev.recall:.2%} | {sev.f1:.2%} |"
                     )
                 lines.append("")
 

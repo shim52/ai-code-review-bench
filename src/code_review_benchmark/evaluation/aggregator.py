@@ -6,18 +6,19 @@ import statistics
 from datetime import datetime, timezone
 from typing import Dict, List, Tuple
 
+from code_review_benchmark.models.challenge import Challenge
 from code_review_benchmark.models.evaluation import (
     BenchmarkReport,
-    ChallengeToolResult,
-    ToolScore,
-    MetricsBreakdown,
     CategoryMetrics,
+    ChallengeToolResult,
+    MetricsBreakdown,
+    ToolScore,
 )
-from code_review_benchmark.models.challenge import Challenge, load_challenges
-from pathlib import Path
 
 
-def compute_group_metrics(results: List[ChallengeToolResult]) -> Tuple[float, float, float, int, int, int]:
+def compute_group_metrics(
+    results: List[ChallengeToolResult],
+) -> Tuple[float, float, float, int, int, int]:
     """Compute aggregated metrics for a group of results.
 
     Returns:

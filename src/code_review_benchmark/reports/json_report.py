@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 from code_review_benchmark.models.evaluation import BenchmarkReport
 
@@ -105,9 +105,15 @@ def generate_dashboard_json(
                     "precision": challenge_result.precision,
                     "recall": challenge_result.recall,
                     "f1_score": challenge_result.f1,
-                    "true_positives": sum(1 for m in challenge_result.matches if m.matched),
-                    "false_positives": challenge_result.findings - sum(1 for m in challenge_result.matches if m.matched),
-                    "false_negatives": len(challenge_result.matches) - sum(1 for m in challenge_result.matches if m.matched),
+                    "true_positives": sum(
+                        1 for m in challenge_result.matches if m.matched
+                    ),
+                    "false_positives": challenge_result.findings - sum(
+                        1 for m in challenge_result.matches if m.matched
+                    ),
+                    "false_negatives": len(challenge_result.matches) - sum(
+                        1 for m in challenge_result.matches if m.matched
+                    ),
                 }
             })
 
