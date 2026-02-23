@@ -37,6 +37,80 @@ def generate_markdown_report(report: BenchmarkReport) -> str:
 
     lines.append("")
 
+    # Metrics breakdown by category, severity, and language
+    if report.metrics_breakdown:
+        lines.append("## Metrics Breakdown")
+        lines.append("")
+
+        # By Category
+        if report.metrics_breakdown.by_category:
+            lines.append("### By Category")
+            lines.append("")
+            lines.append("| Category | Precision | Recall | F1 | Issues Found/Total | Challenges |")
+            lines.append("|----------|-----------|--------|-----|-------------------|------------|")
+            for cat in report.metrics_breakdown.by_category:
+                lines.append(
+                    f"| {cat.name} | {cat.precision:.2%} | {cat.recall:.2%} | {cat.f1:.2%} | "
+                    f"{cat.total_matched}/{cat.total_ground_truths} | {cat.challenges_count} |"
+                )
+            lines.append("")
+
+        # By Severity
+        if report.metrics_breakdown.by_severity:
+            lines.append("### By Severity")
+            lines.append("")
+            lines.append("| Severity | Precision | Recall | F1 | Issues Found/Total |")
+            lines.append("|----------|-----------|--------|-----|-------------------|")
+            for sev in report.metrics_breakdown.by_severity:
+                lines.append(
+                    f"| {sev.name.capitalize()} | {sev.precision:.2%} | {sev.recall:.2%} | "
+                    f"{sev.f1:.2%} | {sev.total_matched}/{sev.total_ground_truths} |"
+                )
+            lines.append("")
+
+        # By Language
+        if report.metrics_breakdown.by_language:
+            lines.append("### By Language")
+            lines.append("")
+            lines.append("| Language | Precision | Recall | F1 | Issues Found/Total | Challenges |")
+            lines.append("|----------|-----------|--------|-----|-------------------|------------|")
+            for lang in report.metrics_breakdown.by_language:
+                lines.append(
+                    f"| {lang.name} | {lang.precision:.2%} | {lang.recall:.2%} | {lang.f1:.2%} | "
+                    f"{lang.total_matched}/{lang.total_ground_truths} | {lang.challenges_count} |"
+                )
+            lines.append("")
+
+    # Per-tool breakdown
+    for tool in report.tools:
+        if tool.metrics_breakdown:
+            lines.append(f"## {tool.tool} - Detailed Breakdown")
+            lines.append("")
+
+            # By Category
+            if tool.metrics_breakdown.by_category:
+                lines.append("### By Category")
+                lines.append("")
+                lines.append("| Category | Precision | Recall | F1 |")
+                lines.append("|----------|-----------|--------|-----|")
+                for cat in tool.metrics_breakdown.by_category:
+                    lines.append(
+                        f"| {cat.name} | {cat.precision:.2%} | {cat.recall:.2%} | {cat.f1:.2%} |"
+                    )
+                lines.append("")
+
+            # By Severity
+            if tool.metrics_breakdown.by_severity:
+                lines.append("### By Severity")
+                lines.append("")
+                lines.append("| Severity | Precision | Recall | F1 |")
+                lines.append("|----------|-----------|--------|-----|")
+                for sev in tool.metrics_breakdown.by_severity:
+                    lines.append(
+                        f"| {sev.name.capitalize()} | {sev.precision:.2%} | {sev.recall:.2%} | {sev.f1:.2%} |"
+                    )
+                lines.append("")
+
     # Per-challenge breakdown
     lines.append("## Per-Challenge Breakdown")
     lines.append("")

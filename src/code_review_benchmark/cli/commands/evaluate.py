@@ -129,6 +129,8 @@ def evaluate_cmd(
         all_results,
         judge_model=judge_model,
         tool_model=tool_model,
+        challenges=list(all_challenges.values()),
+        compute_breakdown=True,
     )
 
     report_file = run_path / "report.json"

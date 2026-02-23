@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderChallenges();
     renderTools();
     renderMatrix();
+    renderMetricsBreakdown();
 
     // Update timestamp
     updateTimestamp();
@@ -700,6 +701,240 @@ function renderTrendChart() {
                     title: {
                         display: true,
                         text: 'Date'
+                    }
+                }
+            }
+        }
+    });
+}
+// Metrics Breakdown Functions
+function renderMetricsBreakdown() {
+    if (!benchmarkData.metrics_breakdown) {
+        return;
+    }
+
+    const container = document.getElementById('metrics-breakdown');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="breakdown-tabs">
+            <button class="tab-btn active" data-tab="category">By Category</button>
+            <button class="tab-btn" data-tab="severity">By Severity</button>
+            <button class="tab-btn" data-tab="language">By Language</button>
+        </div>
+        <div id="breakdown-content">
+            ${renderCategoryBreakdown()}
+        </div>
+    `;
+
+    // Add tab switching
+    container.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const tab = btn.dataset.tab;
+            const content = document.getElementById('breakdown-content');
+
+            switch(tab) {
+                case 'category':
+                    content.innerHTML = renderCategoryBreakdown();
+                    break;
+                case 'severity':
+                    content.innerHTML = renderSeverityBreakdown();
+                    break;
+                case 'language':
+                    content.innerHTML = renderLanguageBreakdown();
+                    break;
+            }
+
+            // Render charts if needed
+            renderBreakdownCharts(tab);
+        });
+    });
+
+    // Initial chart render
+    renderBreakdownCharts('category');
+}
+
+function renderCategoryBreakdown() {
+    const breakdown = benchmarkData.metrics_breakdown.by_category;
+
+    return `
+        <div class="breakdown-grid">
+            <div class="breakdown-table">
+                <h3>Performance by Category</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1 Score</th>
+                            <th>Issues Found/Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${breakdown.map(cat => `
+                            <tr>
+                                <td><span class="challenge-badge badge-${cat.name.toLowerCase()}">${cat.name}</span></td>
+                                <td class="metric">${(cat.precision * 100).toFixed(1)}%</td>
+                                <td class="metric">${(cat.recall * 100).toFixed(1)}%</td>
+                                <td class="metric">${(cat.f1_score * 100).toFixed(1)}%</td>
+                                <td class="metric">${cat.total_found}/${cat.total_issues}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <div class="breakdown-chart">
+                <canvas id="category-chart"></canvas>
+            </div>
+        </div>
+    `;
+}
+
+function renderSeverityBreakdown() {
+    const breakdown = benchmarkData.metrics_breakdown.by_severity;
+
+    return `
+        <div class="breakdown-grid">
+            <div class="breakdown-table">
+                <h3>Performance by Severity</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1 Score</th>
+                            <th>Issues Found/Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${breakdown.map(sev => `
+                            <tr>
+                                <td>
+                                    <span class="severity-badge" style="background: ${getSeverityColor(sev.name)}20; color: ${getSeverityColor(sev.name)};">
+                                        ${sev.name.charAt(0).toUpperCase() + sev.name.slice(1)}
+                                    </span>
+                                </td>
+                                <td class="metric">${(sev.precision * 100).toFixed(1)}%</td>
+                                <td class="metric">${(sev.recall * 100).toFixed(1)}%</td>
+                                <td class="metric">${(sev.f1_score * 100).toFixed(1)}%</td>
+                                <td class="metric">${sev.total_found}/${sev.total_issues}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <div class="breakdown-chart">
+                <canvas id="severity-chart"></canvas>
+            </div>
+        </div>
+    `;
+}
+
+function renderLanguageBreakdown() {
+    const breakdown = benchmarkData.metrics_breakdown.by_language;
+
+    return `
+        <div class="breakdown-grid">
+            <div class="breakdown-table">
+                <h3>Performance by Language</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Language</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1 Score</th>
+                            <th>Challenges</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${breakdown.map(lang => `
+                            <tr>
+                                <td><span class="language-badge">${lang.name}</span></td>
+                                <td class="metric">${(lang.precision * 100).toFixed(1)}%</td>
+                                <td class="metric">${(lang.recall * 100).toFixed(1)}%</td>
+                                <td class="metric">${(lang.f1_score * 100).toFixed(1)}%</td>
+                                <td class="metric">${lang.challenges}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <div class="breakdown-chart">
+                <canvas id="language-chart"></canvas>
+            </div>
+        </div>
+    `;
+}
+
+function renderBreakdownCharts(type) {
+    let data, labels, chartId;
+
+    switch(type) {
+        case 'category':
+            data = benchmarkData.metrics_breakdown.by_category;
+            labels = data.map(d => d.name);
+            chartId = 'category-chart';
+            break;
+        case 'severity':
+            data = benchmarkData.metrics_breakdown.by_severity;
+            labels = data.map(d => d.name.charAt(0).toUpperCase() + d.name.slice(1));
+            chartId = 'severity-chart';
+            break;
+        case 'language':
+            data = benchmarkData.metrics_breakdown.by_language;
+            labels = data.map(d => d.name);
+            chartId = 'language-chart';
+            break;
+    }
+
+    const ctx = document.getElementById(chartId);
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Precision',
+                    data: data.map(d => (d.precision * 100).toFixed(1)),
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                },
+                {
+                    label: 'Recall',
+                    data: data.map(d => (d.recall * 100).toFixed(1)),
+                    backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                },
+                {
+                    label: 'F1 Score',
+                    data: data.map(d => (d.f1_score * 100).toFixed(1)),
+                    backgroundColor: 'rgba(168, 85, 247, 0.5)',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
                     }
                 }
             }
