@@ -26,6 +26,7 @@ def setup() -> None:
     from rich.table import Table
 
     # Force runner registration
+    import code_review_benchmark.runners.claude_reviewer  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
     from code_review_benchmark.runners.registry import list_runners
@@ -43,12 +44,24 @@ def setup() -> None:
 
     console.print(table)
 
-    # Check API key
+    # Check API keys
     api_key = os.environ.get("OPENAI_API_KEY", "")
     if api_key:
         console.print("[green]OPENAI_API_KEY[/green]: set")
     else:
         console.print("[red]OPENAI_API_KEY[/red]: not set (needed for LLM judge)")
+
+    anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    use_bedrock = os.environ.get("CRB_CLAUDE_USE_BEDROCK", "").lower() == "true"
+    if anthropic_key:
+        console.print("[green]ANTHROPIC_API_KEY[/green]: set")
+    elif use_bedrock:
+        console.print("[green]CRB_CLAUDE_USE_BEDROCK[/green]: enabled (using AWS credentials)")
+    else:
+        console.print(
+            "[yellow]ANTHROPIC_API_KEY[/yellow]: not set "
+            "(needed for claude-reviewer; or set CRB_CLAUDE_USE_BEDROCK=true)"
+        )
 
 
 @app.command(name="list-tools")
@@ -56,6 +69,7 @@ def list_tools() -> None:
     """Show registered tools and their availability."""
     from rich.console import Console
 
+    import code_review_benchmark.runners.claude_reviewer  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
     from code_review_benchmark.runners.registry import list_runners

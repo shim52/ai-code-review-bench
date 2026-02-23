@@ -71,6 +71,13 @@ def format_tool_for_dashboard(tool_name: str, overall_score: Dict[str, Any]) -> 
             'license': 'Apache-2.0',
             'install_cmd': 'pip install xai-review',
             'description': 'Extensible AI code review framework with custom rule support'
+        },
+        'Claude Reviewer': {
+            'github_url': 'https://docs.anthropic.com/en/docs/about-claude/models',
+            'stars': 0,
+            'license': 'Proprietary',
+            'install_cmd': 'pip install anthropic',
+            'description': 'General-purpose Claude model (Opus) used as a code reviewer via API'
         }
     }
 
