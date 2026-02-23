@@ -1,0 +1,91 @@
+id: multi-file-refactoring
+name: "Poor Multi-File Refactoring with Design Issues"
+description: "PR refactors order management system to add features but introduces circular dependencies, breaks encapsulation, and violates separation of concerns."
+language: typescript
+difficulty: hard
+categories: [design, architecture]
+
+pr:
+  title: "Refactor order system for better integration"
+  description: "Refactored the order management system to add auto-save, notifications, and discount features."
+
+issues:
+  - id: circular-dependency
+    severity: critical
+    category: design
+    file: src/order.ts
+    line_start: 1
+    line_end: 2
+    title: "Circular dependency between Order and OrderService"
+    description: "Order imports and depends on OrderService while OrderService creates and manages Orders, creating a circular dependency that violates dependency inversion principle."
+    keywords: [circular dependency, coupling, dependency inversion, architecture]
+
+  - id: broken-encapsulation
+    severity: high
+    category: design
+    file: src/order.ts
+    line_start: 11
+    line_end: 12
+    title: "Public fields break encapsulation"
+    description: "Making items and status fields public breaks encapsulation, allowing external code to modify Order state without going through proper methods."
+    keywords: [encapsulation, public fields, data hiding, abstraction]
+
+  - id: inappropriate-responsibility
+    severity: high
+    category: design
+    file: src/order.ts
+    line_start: 44
+    line_end: 50
+    title: "Order class handles notification logic"
+    description: "The Order class directly handles notification decisions, violating single responsibility principle. This logic belongs in a separate orchestrator or service."
+    keywords: [single responsibility, separation of concerns, cohesion]
+
+  - id: singleton-antipattern
+    severity: medium
+    category: design
+    file: src/orderService.ts
+    line_start: 5
+    line_end: 13
+    title: "Unnecessary singleton pattern"
+    description: "OrderService uses singleton pattern without clear justification, making testing difficult and creating hidden global state."
+    keywords: [singleton, antipattern, testability, global state]
+
+  - id: service-manipulates-entity
+    severity: high
+    category: design
+    file: src/orderService.ts
+    line_start: 36
+    line_end: 44
+    title: "Service directly manipulates entity internals"
+    description: "OrderService.applyDiscount directly modifies Order's internal items array, violating encapsulation and the Tell, Don't Ask principle."
+    keywords: [encapsulation, tell don't ask, law of demeter]
+
+  - id: notification-stores-order
+    severity: high
+    category: design
+    file: src/notificationService.ts
+    line_start: 4
+    line_end: 8
+    title: "NotificationService stores Order reference"
+    description: "NotificationService stores a reference to Order and accesses its internals, creating tight coupling and potential memory leaks."
+    keywords: [coupling, memory leak, dependency management]
+
+  - id: persistence-in-domain
+    severity: medium
+    category: design
+    file: src/order.ts
+    line_start: 27
+    line_end: 28
+    title: "Domain object triggers persistence"
+    description: "Order directly triggers saves through OrderService, mixing domain logic with persistence concerns."
+    keywords: [persistence, domain model, separation of concerns]
+
+  - id: type-system-bypass
+    severity: high
+    category: design
+    file: src/notificationService.ts
+    line_start: 30
+    line_end: 36
+    title: "Type system bypass with any cast"
+    description: "NotificationService uses 'as any' to add properties to Order, bypassing type safety and violating the open-closed principle."
+    keywords: [type safety, any cast, open-closed principle]

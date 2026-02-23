@@ -25,6 +25,7 @@ def evaluate_cmd(
     from code_review_benchmark.evaluation.scorer import score_challenge_run
     from code_review_benchmark.models.challenge import load_challenges
     from code_review_benchmark.models.evaluation import ChallengeToolResult
+    from code_review_benchmark.parsers.coderabbit import CodeRabbitParser
     from code_review_benchmark.parsers.pr_agent import PRAgentParser
     from code_review_benchmark.parsers.shippie import ShippieParser
     from code_review_benchmark.parsers.xai_review import XAIReviewParser
@@ -42,6 +43,7 @@ def evaluate_cmd(
 
     # Build parser lookup
     parsers = {
+        "coderabbit": CodeRabbitParser(),
         "pr-agent": PRAgentParser(),
         "shippie": ShippieParser(),
         "xai-review": XAIReviewParser(),

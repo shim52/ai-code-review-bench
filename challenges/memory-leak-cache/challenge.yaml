@@ -1,0 +1,91 @@
+id: memory-leak-cache
+name: "Memory Leaks in Caching System"
+description: "PR adds analytics and subscription features to cache but introduces multiple memory leaks through retained references, unbounded arrays, and improper cleanup."
+language: typescript
+difficulty: hard
+categories: [performance, memory-leak]
+
+pr:
+  title: "Add analytics and subscription features to cache"
+  description: "Enhanced the cache with history tracking, subscriptions, and analytics capabilities."
+
+issues:
+  - id: unbounded-history-array
+    severity: critical
+    category: performance
+    file: src/dataCache.ts
+    line_start: 14
+    line_end: 14
+    title: "Unbounded history array causes memory leak"
+    description: "The history array grows indefinitely with every set and get operation, retaining references to all cached values forever."
+    keywords: [memory leak, unbounded array, garbage collection, history]
+
+  - id: closure-memory-leak
+    severity: high
+    category: performance
+    file: src/dataCache.ts
+    line_start: 44
+    line_end: 49
+    title: "Closures capture entire cache context"
+    description: "Callbacks in cache entries create closures that capture the entire cache context, preventing garbage collection of cache entries."
+    keywords: [closure, memory leak, garbage collection, callback]
+
+  - id: expired-entries-not-deleted
+    severity: critical
+    category: performance
+    file: src/dataCache.ts
+    line_start: 117
+    line_end: 128
+    title: "Expired cache entries never deleted"
+    description: "The cleanupExpired method identifies expired entries but doesn't delete them, causing unbounded memory growth."
+    keywords: [memory leak, cleanup, expiration, cache eviction]
+
+  - id: subscription-leak
+    severity: high
+    category: performance
+    file: src/dataCache.ts
+    line_start: 92
+    line_end: 94
+    title: "Subscription callbacks never removed"
+    description: "The unsubscribe function doesn't actually remove callbacks from the subscriptions Map, causing memory leaks as callbacks accumulate."
+    keywords: [memory leak, event listener, subscription, cleanup]
+
+  - id: global-listener-accumulation
+    severity: high
+    category: performance
+    file: src/dataCache.ts
+    line_start: 139
+    line_end: 144
+    title: "Global listeners array grows unbounded"
+    description: "The batchGet method adds closures to globalListeners array on every call but never removes them, causing memory leak."
+    keywords: [memory leak, global state, closure, unbounded array]
+
+  - id: stats-retain-references
+    severity: medium
+    category: performance
+    file: src/dataCache.ts
+    line_start: 155
+    line_end: 164
+    title: "getStats retains references to all data"
+    description: "The stats object keeps references to original data and callbacks, preventing garbage collection even after cache clear."
+    keywords: [memory leak, reference retention, statistics]
+
+  - id: incomplete-destroy
+    severity: high
+    category: performance
+    file: src/dataCache.ts
+    line_start: 170
+    line_end: 173
+    title: "destroy() doesn't clean up all resources"
+    description: "The destroy method doesn't clear history, subscriptions, or globalListeners arrays, leaving memory leaks after cache destruction."
+    keywords: [memory leak, cleanup, destroy, resource management]
+
+  - id: delete-doesnt-remove
+    severity: high
+    category: performance
+    file: src/dataCache.ts
+    line_start: 96
+    line_end: 104
+    title: "delete() doesn't actually remove entries"
+    description: "The delete method clears callbacks but doesn't remove the entry from the cache Map, causing deleted entries to persist in memory."
+    keywords: [memory leak, delete, cache eviction]

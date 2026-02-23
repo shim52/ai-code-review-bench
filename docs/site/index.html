@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -56,21 +57,25 @@
                 <p>Reproducible benchmarks comparing open-source AI code review tools against curated PRs with known issues</p>
                 <div class="hero-stats">
                     <div class="stat">
-                        <span class="stat-value">3</span>
+                        <span class="stat-value" id="tools-count">3</span>
                         <span class="stat-label">Tools Tested</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-value">5</span>
+                        <span class="stat-value" id="challenges-count">5</span>
                         <span class="stat-label">Challenges</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-value">45</span>
+                        <span class="stat-value" id="runs-count">45</span>
                         <span class="stat-label">Test Runs</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-value">12</span>
+                        <span class="stat-value" id="issues-count">12</span>
                         <span class="stat-label">Issues to Find</span>
                     </div>
+                </div>
+                <div class="last-updated">
+                    <span class="update-label">Last updated:</span>
+                    <span class="update-time" id="last-updated-time">Loading...</span>
                 </div>
             </div>
         </div>
@@ -100,6 +105,25 @@
                     <div class="step-icon">📊</div>
                     <h3>Score & Compare</h3>
                     <p>Measure precision, recall, and F1 against ground truth issues</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Trends Section -->
+    <section class="trends-section">
+        <div class="container">
+            <h2>Performance Trends</h2>
+            <div class="trends-container">
+                <div class="trend-chart-wrapper">
+                    <h3>F1 Score Over Time</h3>
+                    <canvas id="f1-trend-chart"></canvas>
+                </div>
+                <div class="trend-summary">
+                    <h3>Recent Changes</h3>
+                    <div id="trend-summary-content" class="trend-items">
+                        <!-- Dynamically populated -->
+                    </div>
                 </div>
             </div>
         </div>

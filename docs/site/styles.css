@@ -249,6 +249,32 @@ select {
     letter-spacing: 0.05em;
 }
 
+/* ===== Last Updated Badge ===== */
+.last-updated {
+    margin-top: 2rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: slideInUp 0.8s ease-out 0.5s both;
+}
+
+.update-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.update-time {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+}
+
 /* ===== How It Works Section ===== */
 .how-it-works {
     padding: 3rem 0;
@@ -327,6 +353,119 @@ select {
     .pipeline-arrow {
         transform: rotate(90deg);
     }
+}
+
+/* ===== Performance Trends Section ===== */
+.trends-section {
+    padding: 3rem 0;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.trends-section h2 {
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+.trends-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.trend-chart-wrapper {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.trend-chart-wrapper h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+#f1-trend-chart {
+    max-height: 300px;
+}
+
+.trend-summary {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.trend-summary h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.trend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.trend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--bg-primary);
+    border-radius: 6px;
+}
+
+.trend-tool-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.trend-change {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.trend-change.positive {
+    color: var(--success-color);
+}
+
+.trend-change.negative {
+    color: var(--error-color);
+}
+
+.trend-change.neutral {
+    color: var(--text-tertiary);
+}
+
+.trend-arrow {
+    font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .trends-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.no-data {
+    text-align: center;
+    color: var(--text-tertiary);
+    font-style: italic;
+    padding: 2rem 1rem;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    margin: 1rem 0;
 }
 
 /* ===== Contribute CTA ===== */

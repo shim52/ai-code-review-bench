@@ -1,6 +1,7 @@
 // ===== Global State =====
 let benchmarkData = null;
 let currentSortMetric = 'f1_score';
+let trendChart = null;
 
 // ===== Initialize App =====
 document.addEventListener('DOMContentLoaded', async () => {
@@ -26,6 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Update timestamp
     updateTimestamp();
+
+    // Render trends
+    renderTrends();
 });
 
 // ===== Theme Management =====
@@ -44,11 +48,13 @@ function initTheme() {
 
 // ===== Animate Hero Stats =====
 function animateHeroStats() {
+    if (!benchmarkData) return;
+
     const stats = [
-        { selector: '.hero-stats .stat:nth-child(1) .stat-value', target: 3, duration: 800 },
-        { selector: '.hero-stats .stat:nth-child(2) .stat-value', target: 5, duration: 1000 },
-        { selector: '.hero-stats .stat:nth-child(3) .stat-value', target: 45, duration: 1200 },
-        { selector: '.hero-stats .stat:nth-child(4) .stat-value', target: 12, duration: 1400 }
+        { selector: '#tools-count', target: benchmarkData.metadata.tools_count || 3, duration: 800 },
+        { selector: '#challenges-count', target: benchmarkData.metadata.challenges_count || 5, duration: 1000 },
+        { selector: '#runs-count', target: (benchmarkData.metadata.total_runs || 3) * (benchmarkData.metadata.tools_count || 3) * (benchmarkData.metadata.challenges_count || 5), duration: 1200 },
+        { selector: '#issues-count', target: benchmarkData.challenges?.reduce((sum, ch) => sum + (ch.ground_truth_issues || 0), 0) || 12, duration: 1400 }
     ];
 
     stats.forEach(stat => {
@@ -524,20 +530,179 @@ function getSeverityColor(severity) {
 }
 
 function updateTimestamp() {
-    const lastUpdated = document.getElementById('last-updated');
-    if (benchmarkData && benchmarkData.metadata.timestamp) {
-        const date = new Date(benchmarkData.metadata.timestamp);
-        lastUpdated.textContent = date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    const lastUpdatedElement = document.getElementById('last-updated-time');
+    if (lastUpdatedElement && benchmarkData && benchmarkData.metadata.last_updated) {
+        lastUpdatedElement.textContent = benchmarkData.metadata.last_updated;
+    } else if (lastUpdatedElement) {
+        lastUpdatedElement.textContent = 'No data available';
     }
 }
 
 function showError(message) {
     console.error(message);
     // Could implement a toast notification here
+}
+
+// ===== Render Performance Trends =====
+function renderTrends() {
+    if (!benchmarkData) return;
+
+    // Render trend summary
+    renderTrendSummary();
+
+    // Render trend chart
+    renderTrendChart();
+}
+
+function renderTrendSummary() {
+    const container = document.getElementById('trend-summary-content');
+    if (!container) return;
+
+    const trends = benchmarkData.trends || {};
+
+    if (Object.keys(trends).length === 0) {
+        container.innerHTML = '<p class="no-data">No trend data available yet. Trends will appear after multiple benchmark runs.</p>';
+        return;
+    }
+
+    const trendItems = Object.entries(trends).map(([tool, data]) => {
+        const f1Change = data.f1_score_change || 0;
+        const changePercent = (f1Change * 100).toFixed(1);
+        const isPositive = f1Change > 0;
+        const isNeutral = Math.abs(f1Change) < 0.01;
+
+        let trendClass = 'neutral';
+        let arrow = '→';
+
+        if (!isNeutral) {
+            trendClass = isPositive ? 'positive' : 'negative';
+            arrow = isPositive ? '↑' : '↓';
+        }
+
+        return `
+            <div class="trend-item">
+                <span class="trend-tool-name">${tool}</span>
+                <span class="trend-change ${trendClass}">
+                    <span class="trend-arrow">${arrow}</span>
+                    ${isPositive ? '+' : ''}${changePercent}%
+                </span>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = trendItems;
+}
+
+function renderTrendChart() {
+    const canvas = document.getElementById('f1-trend-chart');
+    if (!canvas) return;
+
+    const recentHistory = benchmarkData.recent_history || [];
+
+    if (recentHistory.length === 0) {
+        // Show a message instead of empty chart
+        canvas.style.display = 'none';
+        const wrapper = canvas.parentElement;
+        if (!wrapper.querySelector('.no-data')) {
+            const noDataMsg = document.createElement('p');
+            noDataMsg.className = 'no-data';
+            noDataMsg.textContent = 'Chart will appear after multiple benchmark runs.';
+            wrapper.appendChild(noDataMsg);
+        }
+        return;
+    }
+
+    // Prepare data for Chart.js
+    const labels = recentHistory.map(entry => entry.date);
+    const tools = new Set();
+
+    // Get all tool names
+    recentHistory.forEach(entry => {
+        Object.keys(entry.metrics).forEach(tool => tools.add(tool));
+    });
+
+    // Create datasets for each tool
+    const datasets = Array.from(tools).map(tool => {
+        const data = recentHistory.map(entry => {
+            return entry.metrics[tool] ? (entry.metrics[tool].f1_score * 100) : null;
+        });
+
+        // Generate a color for each tool
+        const colors = {
+            'PR-Agent': 'rgb(59, 130, 246)',  // Blue
+            'Shippie': 'rgb(34, 197, 94)',    // Green
+            'AI Review': 'rgb(239, 68, 68)'   // Red
+        };
+
+        const color = colors[tool] || `hsl(${Math.random() * 360}, 70%, 50%)`;
+
+        return {
+            label: tool,
+            data: data,
+            borderColor: color,
+            backgroundColor: color + '20',
+            tension: 0.3,
+            fill: false,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        };
+    });
+
+    // Destroy previous chart if exists
+    if (trendChart) {
+        trendChart.destroy();
+    }
+
+    // Create new chart
+    const ctx = canvas.getContext('2d');
+    trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'F1 Score (%)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
+                }
+            }
+        }
+    });
 }

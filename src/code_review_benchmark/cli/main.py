@@ -26,6 +26,7 @@ def setup() -> None:
     from rich.table import Table
 
     # Force runner registration
+    import code_review_benchmark.runners.coderabbit  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
     import code_review_benchmark.runners.xai_review  # noqa: F401
@@ -57,6 +58,7 @@ def list_tools() -> None:
     """Show registered tools and their availability."""
     from rich.console import Console
 
+    import code_review_benchmark.runners.coderabbit  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
     import code_review_benchmark.runners.xai_review  # noqa: F401

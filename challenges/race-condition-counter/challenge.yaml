@@ -1,0 +1,51 @@
+id: race-condition-counter
+name: "Race Condition in Analytics Counter"
+description: "PR adds in-memory caching to analytics service, introducing race conditions when multiple requests increment counters concurrently."
+language: typescript
+difficulty: hard
+categories: [bug, concurrency]
+
+pr:
+  title: "Add in-memory caching for analytics performance"
+  description: "Implemented in-memory caching to reduce database queries for frequently accessed page view statistics."
+
+issues:
+  - id: race-condition-increment
+    severity: high
+    category: bug
+    file: src/analytics.ts
+    line_start: 18
+    line_end: 20
+    title: "Race condition in view counter increment"
+    description: "Multiple concurrent requests can read the same stats.views value and increment it, causing lost updates. The increment operation is not atomic."
+    keywords: [race condition, concurrent, atomic, increment, mutex, lock]
+
+  - id: race-condition-initialization
+    severity: high
+    category: bug
+    file: src/analytics.ts
+    line_start: 12
+    line_end: 16
+    title: "Race condition in stats initialization"
+    description: "Multiple threads can check if stats is undefined simultaneously and create duplicate PageStats objects, causing data loss."
+    keywords: [race condition, initialization, concurrent, double-checked locking]
+
+  - id: inconsistent-state
+    severity: medium
+    category: bug
+    file: src/analytics.ts
+    line_start: 28
+    line_end: 31
+    title: "Inconsistent state between cache and database"
+    description: "The database update can fail after the in-memory counter is incremented, leading to inconsistent state between cache and persistent storage."
+    keywords: [consistency, transaction, rollback, state management]
+
+  - id: sync-race-condition
+    severity: high
+    category: bug
+    file: src/analytics.ts
+    line_start: 50
+    line_end: 55
+    title: "Race condition in syncAllStats method"
+    description: "The sync method reads from database and updates cache without locking, causing potential data races with concurrent trackPageView calls."
+    keywords: [race condition, synchronization, concurrent modification]
