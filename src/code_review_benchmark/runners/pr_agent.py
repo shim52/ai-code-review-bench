@@ -39,13 +39,13 @@ class PRAgentRunner(AbstractToolRunner):
         model: str | None = None,
     ) -> RunResult:
         env = {**os.environ}
-        if model:
-            env["OPENAI_MODEL"] = model
 
         # PR-Agent's handle_request calls apply_repo_settings() before parsing
         # CLI config overrides, so we must set the git provider via env vars
         # to ensure the local provider is selected before URL-based detection.
         env["CONFIG.GIT_PROVIDER"] = "local"
+        if model:
+            env["CONFIG.MODEL"] = model
 
         # Ensure HEAD is on the PR branch (the "source" branch).
         # LocalGitProvider reads head_branch_name from repo.head.ref.name.

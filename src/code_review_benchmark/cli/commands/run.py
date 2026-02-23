@@ -24,7 +24,6 @@ def run_cmd(
 ) -> None:
     """Run all (or selected) tools against all (or selected) challenges."""
     # Lazy imports to keep CLI startup fast
-    import code_review_benchmark.runners.coderabbit  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
     from code_review_benchmark.challenge_repo.builder import build_challenge_repo

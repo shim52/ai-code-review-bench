@@ -63,6 +63,10 @@ class ShippieRunner(AbstractToolRunner):
             "--platform",
             "local",
         ]
+        if model:
+            # Shippie expects format "provider:model", e.g. "openai:gpt-5.2-2025-12-11"
+            model_str = model if ":" in model else f"openai:{model}"
+            cmd.extend(["--modelString", model_str])
 
         try:
             proc = subprocess.run(

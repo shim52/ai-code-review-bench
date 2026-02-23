@@ -50,11 +50,11 @@ function initTheme() {
 function animateHeroStats() {
     if (!benchmarkData) return;
 
-    const activeTools = benchmarkData.tools.filter(t => !t.coming_soon).length;
+    const toolCount = benchmarkData.tools.length;
     const stats = [
-        { selector: '#tools-count', target: activeTools, duration: 800 },
+        { selector: '#tools-count', target: toolCount, duration: 800 },
         { selector: '#challenges-count', target: benchmarkData.metadata.challenges_count || benchmarkData.challenges?.length || 10, duration: 1000 },
-        { selector: '#runs-count', target: (benchmarkData.metadata.total_runs || 1) * activeTools * (benchmarkData.metadata.challenges_count || 10), duration: 1200 },
+        { selector: '#runs-count', target: (benchmarkData.metadata.total_runs || 1) * toolCount * (benchmarkData.metadata.challenges_count || 10), duration: 1200 },
         { selector: '#issues-count', target: benchmarkData.challenges?.reduce((sum, ch) => sum + (ch.ground_truth_issues || 0), 0) || 41, duration: 1400 }
     ];
 
@@ -226,39 +226,8 @@ function renderTools() {
     const container = document.getElementById('tools-grid');
 
     container.innerHTML = benchmarkData.tools.map(tool => {
-        const isComingSoon = tool.coming_soon === true;
         const toolScore = benchmarkData.overall_scores.find(s => s.tool === tool.name);
         const llmModel = tool.llm_model || '';
-
-        if (isComingSoon) {
-            return `
-                <div class="tool-card tool-coming-soon">
-                    <div class="tool-header">
-                        <div class="tool-title">${tool.name} <span class="coming-soon-badge">Coming Soon</span></div>
-                        <div class="tool-stars">
-                            <span>⭐</span>
-                            <span>${tool.stars.toLocaleString()}</span>
-                        </div>
-                    </div>
-                    <div class="tool-description">${tool.description}</div>
-                    <div class="tool-install">$ ${tool.install_cmd}</div>
-                    ${llmModel ? `<div class="tool-llm"><span class="llm-badge">🧠 LLM: ${llmModel}</span></div>` : ''}
-                    <div class="coming-soon-overlay">
-                        <p>Benchmark results coming soon</p>
-                    </div>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
-                        <a href="${tool.github_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-                            View on GitHub
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                <polyline points="15 3 21 3 21 9"></polyline>
-                                <line x1="10" y1="14" x2="21" y2="3"></line>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            `;
-        }
 
         return `
             <div class="tool-card">
@@ -335,7 +304,7 @@ function renderMatrix() {
     });
     html += '</tr></thead><tbody>';
 
-    // Add tool rows (skip coming_soon tools with no results)
+    // Add tool rows
     Object.keys(matrix).forEach(tool => {
         html += `<tr><th>${tool}</th>`;
         benchmarkData.challenges.forEach(challenge => {
@@ -668,8 +637,7 @@ function renderTrendChart() {
         // Generate a color for each tool
         const colors = {
             'PR-Agent': 'rgb(59, 130, 246)',  // Blue
-            'Shippie': 'rgb(34, 197, 94)',    // Green
-            'CodeRabbit': 'rgb(239, 68, 68)'  // Red
+            'Shippie': 'rgb(34, 197, 94)'     // Green
         };
 
         const color = colors[tool] || `hsl(${Math.random() * 360}, 70%, 50%)`;

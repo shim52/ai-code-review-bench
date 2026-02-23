@@ -1,15 +1,12 @@
 {
   "metadata": {
-    "timestamp": "2026-02-23T20:14:39Z",
+    "timestamp": "2026-02-23T20:44:27Z",
     "benchmark_version": "1.0.0",
     "total_runs": 1,
     "evaluation_method": "heuristic",
     "challenges_count": 10,
     "tools_count": 2,
-    "llm_models": {
-      "PR-Agent": "gpt-5.2-2025-12-11",
-      "Shippie": "gpt-4.1-mini"
-    }
+    "llm_model": "gpt-4.1-mini"
   },
   "tools": [
     {
@@ -20,7 +17,7 @@
       "license": "AGPL-3.0",
       "install_cmd": "pip install 'git+https://github.com/qodo-ai/pr-agent.git@main'",
       "description": "AI-powered code review and suggestions by Qodo, using LLMs to analyze pull requests",
-      "llm_model": "gpt-5.2-2025-12-11"
+      "llm_model": "gpt-4.1-mini"
     },
     {
       "name": "Shippie",
@@ -31,17 +28,6 @@
       "install_cmd": "npm install -g shippie",
       "description": "Open-source, extensible AI code review agent with local and CI support",
       "llm_model": "gpt-4.1-mini"
-    },
-    {
-      "name": "CodeRabbit",
-      "version": "-",
-      "github_url": "https://github.com/coderabbitai/coderabbit",
-      "stars": 8500,
-      "license": "Proprietary",
-      "install_cmd": "curl -fsSL https://cli.coderabbit.ai/install.sh | sh",
-      "description": "AI-powered code review platform with deep contextual understanding",
-      "llm_model": "proprietary",
-      "coming_soon": true
     }
   ],
   "challenges": [
@@ -155,12 +141,12 @@
       "tool": "PR-Agent",
       "challenge": "missing-await-async",
       "metrics": {
-        "precision": 0.5,
-        "recall": 1.0,
-        "f1_score": 0.6667,
-        "true_positives": 3,
-        "false_positives": 3,
-        "false_negatives": 0
+        "precision": 0.1667,
+        "recall": 0.3333,
+        "f1_score": 0.2222,
+        "true_positives": 1,
+        "false_positives": 5,
+        "false_negatives": 2
       }
     },
     {
@@ -179,12 +165,12 @@
       "tool": "PR-Agent",
       "challenge": "n-plus-one-query",
       "metrics": {
-        "precision": 0.1667,
-        "recall": 0.5,
-        "f1_score": 0.25,
-        "true_positives": 1,
-        "false_positives": 5,
-        "false_negatives": 1
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 6,
+        "false_negatives": 2
       }
     },
     {
@@ -215,12 +201,12 @@
       "tool": "PR-Agent",
       "challenge": "sql-injection-express",
       "metrics": {
-        "precision": 0.1667,
-        "recall": 0.5,
-        "f1_score": 0.25,
-        "true_positives": 1,
-        "false_positives": 5,
-        "false_negatives": 1
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 6,
+        "false_negatives": 2
       }
     },
     {
@@ -239,12 +225,12 @@
       "tool": "PR-Agent",
       "challenge": "xss-react-component",
       "metrics": {
-        "precision": 0.5,
-        "recall": 1.0,
-        "f1_score": 0.6667,
-        "true_positives": 3,
-        "false_positives": 3,
-        "false_negatives": 0
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 6,
+        "false_negatives": 3
       }
     },
     {
@@ -252,22 +238,22 @@
       "challenge": "hardcoded-secrets",
       "metrics": {
         "precision": 1.0,
-        "recall": 0.6667,
-        "f1_score": 0.8,
-        "true_positives": 2,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "true_positives": 3,
         "false_positives": 0,
-        "false_negatives": 1
+        "false_negatives": 0
       }
     },
     {
       "tool": "Shippie",
       "challenge": "memory-leak-cache",
       "metrics": {
-        "precision": 1.0,
+        "precision": 0.4286,
         "recall": 0.375,
-        "f1_score": 0.5455,
+        "f1_score": 0.4,
         "true_positives": 3,
-        "false_positives": 0,
+        "false_positives": 4,
         "false_negatives": 5
       }
     },
@@ -276,11 +262,11 @@
       "challenge": "missing-await-async",
       "metrics": {
         "precision": 1.0,
-        "recall": 0.6667,
-        "f1_score": 0.8,
-        "true_positives": 2,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "true_positives": 3,
         "false_positives": 0,
-        "false_negatives": 1
+        "false_negatives": 0
       }
     },
     {
@@ -291,7 +277,7 @@
         "recall": 0.0,
         "f1_score": 0.0,
         "true_positives": 0,
-        "false_positives": 9,
+        "false_positives": 12,
         "false_negatives": 8
       }
     },
@@ -303,7 +289,7 @@
         "recall": 0.0,
         "f1_score": 0.0,
         "true_positives": 0,
-        "false_positives": 1,
+        "false_positives": 4,
         "false_negatives": 2
       }
     },
@@ -311,11 +297,11 @@
       "tool": "Shippie",
       "challenge": "off-by-one-pagination",
       "metrics": {
-        "precision": 0.25,
+        "precision": 0.0769,
         "recall": 0.5,
-        "f1_score": 0.3333,
+        "f1_score": 0.1333,
         "true_positives": 1,
-        "false_positives": 3,
+        "false_positives": 12,
         "false_negatives": 1
       }
     },
@@ -335,11 +321,11 @@
       "tool": "Shippie",
       "challenge": "sql-injection-express",
       "metrics": {
-        "precision": 0.1667,
+        "precision": 1.0,
         "recall": 0.5,
-        "f1_score": 0.25,
+        "f1_score": 0.6667,
         "true_positives": 1,
-        "false_positives": 5,
+        "false_positives": 0,
         "false_negatives": 1
       }
     },
@@ -363,7 +349,7 @@
         "recall": 0.0,
         "f1_score": 0.0,
         "true_positives": 0,
-        "false_positives": 9,
+        "false_positives": 4,
         "false_negatives": 3
       }
     }
@@ -372,23 +358,23 @@
     {
       "tool": "PR-Agent",
       "metrics": {
-        "avg_precision": 0.2167,
-        "avg_recall": 0.4417,
-        "avg_f1_score": 0.2813,
-        "total_true_positives": 13,
-        "total_false_positives": 47,
-        "total_false_negatives": 28
+        "avg_precision": 0.1,
+        "avg_recall": 0.175,
+        "avg_f1_score": 0.1202,
+        "total_true_positives": 6,
+        "total_false_positives": 54,
+        "total_false_negatives": 35
       }
     },
     {
       "tool": "Shippie",
       "metrics": {
-        "avg_precision": 0.3417,
-        "avg_recall": 0.2708,
-        "avg_f1_score": 0.2729,
-        "total_true_positives": 9,
-        "total_false_positives": 39,
-        "total_false_negatives": 32
+        "avg_precision": 0.3506,
+        "avg_recall": 0.3375,
+        "avg_f1_score": 0.32,
+        "total_true_positives": 11,
+        "total_false_positives": 48,
+        "total_false_negatives": 30
       }
     }
   ]
