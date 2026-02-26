@@ -27,6 +27,7 @@ def setup() -> None:
 
     # Force runner registration
     import code_review_benchmark.runners.claude_reviewer  # noqa: F401
+    import code_review_benchmark.runners.gemini_reviewer  # noqa: F401
     import code_review_benchmark.runners.openai_reviewer  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
@@ -73,6 +74,7 @@ def list_tools() -> None:
     from rich.console import Console
 
     import code_review_benchmark.runners.claude_reviewer  # noqa: F401
+    import code_review_benchmark.runners.gemini_reviewer  # noqa: F401
     import code_review_benchmark.runners.openai_reviewer  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401

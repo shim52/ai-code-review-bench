@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/yourusername/code-review-benchmark/issues)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/shim52/ai-code-review-bench/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 A reproducible benchmark suite that evaluates open source AI code review tools against curated pull requests with known issues.
@@ -26,6 +26,7 @@ There's no standardized way to compare AI code review tools. Developers pick too
 | [Shippie](https://github.com/mattzcarey/shippie) | Standalone | MIT | `npx shippie` |
 | OpenAI Reviewer | Built-in (GPT-4o) | — | `OPENAI_API_KEY` |
 | Claude Reviewer | Built-in (Claude Opus) | — | `ANTHROPIC_API_KEY` |
+| Gemini Reviewer | Built-in (Gemini 2.5 Pro) | — | `GOOGLE_API_KEY` |
 
 ## Quick Start
 
@@ -95,7 +96,7 @@ Set via environment variables or `.env` file:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `OPENAI_API_KEY` | — | Required for LLM judge and most tools |
-| `CRB_JUDGE_MODEL` | `gpt-4o` | Model used for LLM-as-judge evaluation |
+| `CRB_JUDGE_MODEL` | `claude-sonnet-4-20250514` | Model used for LLM-as-judge (Anthropic, to avoid OpenAI bias) |
 | `CRB_TOOL_MODEL` | — | Model passed to review tools |
 | `CRB_NUM_RUNS` | `3` | Default runs per tool/challenge pair |
 
@@ -113,7 +114,7 @@ See `docs/evaluation-methodology.md` for details.
 
 ```bash
 # Fork and clone the repository
-git clone https://github.com/yourusername/code-review-benchmark.git
+git clone https://github.com/shim52/ai-code-review-bench.git
 cd code-review-benchmark
 
 # Install in development mode
@@ -136,16 +137,16 @@ We welcome contributions from the community! Whether you're adding a new tool, c
 ### Quick Contribution Ideas
 - 🔧 **Add a new AI code review tool** - See [Adding Tools Guide](docs/adding-tools.md)
 - 🧪 **Create new challenge scenarios** - See [Adding Challenges Guide](docs/adding-challenges.md)
-- 🐛 **Report or fix bugs** - [Open an issue](https://github.com/yourusername/code-review-benchmark/issues)
+- 🐛 **Report or fix bugs** - [Open an issue](https://github.com/shim52/ai-code-review-bench/issues)
 - 📖 **Improve documentation** - Every bit helps!
 
 Check out our [Contributing Guide](.github/CONTRIBUTING.md) for detailed instructions.
 
 ## 👥 Community
 
-- **Questions?** [Open a discussion](https://github.com/yourusername/code-review-benchmark/discussions)
-- **Found a bug?** [Report it here](https://github.com/yourusername/code-review-benchmark/issues/new?template=bug_report.md)
-- **Have an idea?** [Suggest a feature](https://github.com/yourusername/code-review-benchmark/issues/new?template=feature_request.md)
+- **Questions?** [Open a discussion](https://github.com/shim52/ai-code-review-bench/discussions)
+- **Found a bug?** [Report it here](https://github.com/shim52/ai-code-review-bench/issues/new?template=bug_report.md)
+- **Have an idea?** [Suggest a feature](https://github.com/shim52/ai-code-review-bench/issues/new?template=feature_request.md)
 
 ## 📜 License
 

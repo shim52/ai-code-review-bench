@@ -78,11 +78,29 @@ function animateHeroStats() {
 // ===== Data Loading =====
 async function loadBenchmarkData() {
     try {
+        // Try fetch first (works on HTTP servers, GitHub Pages, etc.)
         const response = await fetch('data/benchmark-results.json');
         benchmarkData = await response.json();
-    } catch (error) {
-        console.error('Failed to load benchmark data:', error);
-        showError('Failed to load benchmark data. Please try refreshing the page.');
+    } catch (fetchError) {
+        // Fallback for file:// protocol (CORS blocks fetch for local files)
+        try {
+            benchmarkData = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'data/benchmark-results.json', true);
+                xhr.onload = () => {
+                    if (xhr.status === 0 || xhr.status === 200) {
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        reject(new Error(`HTTP ${xhr.status}`));
+                    }
+                };
+                xhr.onerror = () => reject(new Error('XHR failed'));
+                xhr.send();
+            });
+        } catch (xhrError) {
+            console.error('Failed to load benchmark data:', xhrError);
+            showError('Failed to load data. If opening locally, run: python3 -m http.server 8000 --directory docs/site');
+        }
     }
 }
 

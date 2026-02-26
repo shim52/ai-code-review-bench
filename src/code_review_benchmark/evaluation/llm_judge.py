@@ -1,15 +1,22 @@
-"""LLM-as-judge for semantic matching between findings and ground truth."""
+"""LLM-as-judge for semantic matching between findings and ground truth.
+
+Uses Claude Sonnet 4 by default — chosen because most benchmarked tools
+use OpenAI models, so an Anthropic judge reduces same-provider scoring bias.
+Configurable via CRB_JUDGE_MODEL (any Anthropic model name).
+"""
 
 from __future__ import annotations
 
 import json
 import os
 
-from openai import OpenAI
+from anthropic import Anthropic
 
 from code_review_benchmark.models.challenge import GroundTruthIssue
 from code_review_benchmark.models.evaluation import MatchResult
 from code_review_benchmark.models.finding import NormalizedFinding
+
+DEFAULT_JUDGE_MODEL = "claude-sonnet-4-20250514"
 
 _SYSTEM_PROMPT = """\
 You are a code review evaluation judge. Given a ground truth issue that should \
@@ -29,29 +36,37 @@ Minor differences in line numbers or wording are acceptable.
 """
 
 
+def _get_judge_model(model: str | None = None) -> str:
+    """Resolve the judge model from argument, env var, or default."""
+    if model:
+        return model
+    return os.environ.get("CRB_JUDGE_MODEL", DEFAULT_JUDGE_MODEL)
+
+
+def _call_judge(model: str, system_prompt: str, user_msg: str) -> dict:
+    """Call the Anthropic API and return the parsed JSON response."""
+    client = Anthropic()
+    response = client.messages.create(
+        model=model,
+        max_tokens=512,
+        system=system_prompt,
+        messages=[{"role": "user", "content": user_msg}],
+        temperature=0.0,
+    )
+    content = response.content[0].text
+    return json.loads(content)
+
+
 def llm_judge_match(
     ground_truth: GroundTruthIssue,
     finding: NormalizedFinding,
     model: str | None = None,
 ) -> MatchResult:
     """Use an LLM to judge whether a finding matches a ground truth issue."""
-    model = model or os.environ.get("CRB_JUDGE_MODEL", "gpt-4o")
-    client = OpenAI()
+    resolved_model = _get_judge_model(model)
 
     user_msg = _build_user_message(ground_truth, finding)
-
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": _SYSTEM_PROMPT},
-            {"role": "user", "content": user_msg},
-        ],
-        temperature=0.0,
-        response_format={"type": "json_object"},
-    )
-
-    content = response.choices[0].message.content or "{}"
-    result = json.loads(content)
+    result = _call_judge(resolved_model, _SYSTEM_PROMPT, user_msg)
 
     return MatchResult(
         ground_truth_id=ground_truth.id,
@@ -121,4 +136,4 @@ def _build_user_message(gt: GroundTruthIssue, finding: NormalizedFinding) -> str
 - **Title**: {finding.title}
 - **Description**: {finding.description}
 
-Does this finding match the ground truth issue?"""
+Does this finding match the ground truth issue? Respond with JSON only."""

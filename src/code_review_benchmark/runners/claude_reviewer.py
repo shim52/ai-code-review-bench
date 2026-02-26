@@ -33,7 +33,8 @@ class ClaudeReviewerRunner(AbstractLLMReviewer):
             return False
         api_key = os.environ.get("ANTHROPIC_API_KEY", "")
         use_bedrock = os.environ.get("CRB_CLAUDE_USE_BEDROCK", "").lower() == "true"
-        return bool(api_key or use_bedrock)
+        aws_profile = os.environ.get("AWS_PROFILE", "")
+        return bool(api_key or use_bedrock or aws_profile)
 
     def _resolve_model(self, model: str | None) -> str:
         """Determine which Claude model to use."""
@@ -49,9 +50,15 @@ class ClaudeReviewerRunner(AbstractLLMReviewer):
         import anthropic
 
         use_bedrock = os.environ.get("CRB_CLAUDE_USE_BEDROCK", "").lower() == "true"
-        if use_bedrock:
+        aws_profile = os.environ.get("AWS_PROFILE", "")
+
+        # Use Bedrock if explicitly requested OR if AWS_PROFILE is set (no API key)
+        if use_bedrock or (aws_profile and not os.environ.get("ANTHROPIC_API_KEY")):
             region = os.environ.get("AWS_REGION", os.environ.get("AWS_DEFAULT_REGION", "us-east-1"))
-            return anthropic.AnthropicBedrock(aws_region=region), True
+            return anthropic.AnthropicBedrock(
+                aws_region=region,
+                aws_profile=aws_profile or None,
+            ), True
         return anthropic.Anthropic(), False
 
     def _bedrock_model_id(self, model: str) -> str:
