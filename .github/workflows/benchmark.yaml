@@ -1,9 +1,6 @@
-name: Weekly Benchmark Run
+name: Benchmark Run
 
 on:
-  schedule:
-    # Run every Monday at 3 AM UTC
-    - cron: '0 3 * * 1'
   workflow_dispatch:
     inputs:
       tools:
@@ -17,8 +14,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   run-benchmark:
@@ -93,33 +88,9 @@ jobs:
           git commit -m "Benchmark results: $TIMESTAMP" || echo "No changes to commit"
           git push
 
-  deploy-dashboard:
-    needs: run-benchmark
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
   notify-failure:
     runs-on: ubuntu-latest
-    needs: [run-benchmark, deploy-dashboard]
+    needs: [run-benchmark]
     if: ${{ failure() }}
     steps:
       - name: Create issue on failure
