@@ -44,6 +44,7 @@ def evaluate_cmd(
 
     # Resolve the actual judge model name for reporting (llm_judge uses its own default when None)
     from code_review_benchmark.evaluation.llm_judge import DEFAULT_JUDGE_MODEL
+
     resolved_judge_model = judge_model or DEFAULT_JUDGE_MODEL
 
     # Build parser lookup

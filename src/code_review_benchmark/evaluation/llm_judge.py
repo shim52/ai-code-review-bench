@@ -40,6 +40,7 @@ def _get_judge_model(model: str | None = None) -> str:
         return model
     return os.environ.get("CRB_JUDGE_MODEL", DEFAULT_JUDGE_MODEL)
 
+
 # Bedrock model ID mapping (same as claude_reviewer.py)
 _BEDROCK_MODEL_MAP = {
     "claude-sonnet-4-20250514": "us.anthropic.claude-sonnet-4-20250514-v1:0",
