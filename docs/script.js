@@ -1,6 +1,6 @@
 // ===== Global State =====
 let benchmarkData = null;
-let currentSortMetric = 'f1_score';
+let currentSortMetric = 'f2_score';
 let trendChart = null;
 
 // ===== Initialize App =====
@@ -25,10 +25,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderTools();
     renderMatrix();
 
+    // Compute breakdown data client-side and render
+    computeMetricsBreakdown();
+    renderMetricsBreakdown();
+
     // Update timestamp
     updateTimestamp();
 
-    // Render trends
+    // Render trends (hides section if no data)
     renderTrends();
 });
 
@@ -149,12 +153,16 @@ function renderLeaderboard() {
     // Build entries: scored tools sorted by metric, then unscored tools as "coming soon"
     const scoredTools = [...benchmarkData.overall_scores].sort((a, b) => {
         switch (currentSortMetric) {
+            case 'f2_score':
+                return computeF2(b.metrics.avg_precision, b.metrics.avg_recall) - computeF2(a.metrics.avg_precision, a.metrics.avg_recall);
             case 'f1_score':
                 return b.metrics.avg_f1_score - a.metrics.avg_f1_score;
             case 'precision':
                 return b.metrics.avg_precision - a.metrics.avg_precision;
             case 'recall':
                 return b.metrics.avg_recall - a.metrics.avg_recall;
+            case 'issues_found':
+                return b.metrics.total_true_positives - a.metrics.total_true_positives;
             case 'speed':
                 return (a.metrics.avg_response_time_ms || 0) - (b.metrics.avg_response_time_ms || 0);
             default:
@@ -172,6 +180,7 @@ function renderLeaderboard() {
         const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
         const llmModel = toolInfo?.llm_model || llmModels[tool.tool] || '';
 
+        const f2 = computeF2(tool.metrics.avg_precision, tool.metrics.avg_recall);
         return `
             <div class="leaderboard-item">
                 <div class="rank ${rankClass}">#${index + 1}</div>
@@ -184,25 +193,31 @@ function renderLeaderboard() {
                     </div>
                 </div>
                 <div class="metrics-grid">
-                    <div class="metric">
+                    <div class="metric ${currentSortMetric === 'f2_score' ? 'metric-highlighted' : ''}">
+                        <span class="metric-value ${getScoreClass(f2)}">
+                            ${(f2 * 100).toFixed(1)}%
+                        </span>
+                        <span class="metric-label">F2 Score</span>
+                    </div>
+                    <div class="metric ${currentSortMetric === 'f1_score' ? 'metric-highlighted' : ''}">
                         <span class="metric-value ${getScoreClass(tool.metrics.avg_f1_score)}">
                             ${(tool.metrics.avg_f1_score * 100).toFixed(1)}%
                         </span>
                         <span class="metric-label">F1 Score</span>
                     </div>
-                    <div class="metric">
+                    <div class="metric ${currentSortMetric === 'precision' ? 'metric-highlighted' : ''}">
                         <span class="metric-value ${getScoreClass(tool.metrics.avg_precision)}">
                             ${(tool.metrics.avg_precision * 100).toFixed(1)}%
                         </span>
                         <span class="metric-label">Precision</span>
                     </div>
-                    <div class="metric">
+                    <div class="metric ${currentSortMetric === 'recall' ? 'metric-highlighted' : ''}">
                         <span class="metric-value ${getScoreClass(tool.metrics.avg_recall)}">
                             ${(tool.metrics.avg_recall * 100).toFixed(1)}%
                         </span>
                         <span class="metric-label">Recall</span>
                     </div>
-                    <div class="metric">
+                    <div class="metric ${currentSortMetric === 'issues_found' ? 'metric-highlighted' : ''}">
                         <span class="metric-value">
                             ${tool.metrics.total_true_positives}/${tool.metrics.total_true_positives + tool.metrics.total_false_negatives}
                         </span>
@@ -609,6 +624,11 @@ function showModal(content) {
 }
 
 // ===== Utility Functions =====
+function computeF2(precision, recall) {
+    if (precision + recall === 0) return 0;
+    return (5 * precision * recall) / (4 * precision + recall);
+}
+
 function getScoreClass(score) {
     if (score >= 0.9) return 'score-excellent';
     if (score >= 0.7) return 'score-good';
@@ -655,6 +675,18 @@ function showError(message) {
 // ===== Render Performance Trends =====
 function renderTrends() {
     if (!benchmarkData) return;
+
+    // Hide the entire section if no historical data exists
+    const trendsSection = document.getElementById('trends-section');
+    const recentHistory = benchmarkData.recent_history || [];
+    const trends = benchmarkData.trends || {};
+
+    if (recentHistory.length === 0 && Object.keys(trends).length === 0) {
+        if (trendsSection) {
+            trendsSection.style.display = 'none';
+        }
+        return;
+    }
 
     // Render trend summary
     renderTrendSummary();
@@ -815,8 +847,83 @@ function renderTrendChart() {
     });
 }
 // Metrics Breakdown Functions
+
+// Compute breakdown data client-side from results + challenges
+function computeMetricsBreakdown() {
+    if (!benchmarkData || benchmarkData.metrics_breakdown) return;
+
+    const results = benchmarkData.results || [];
+    const challenges = benchmarkData.challenges || [];
+
+    // Build lookup maps
+    const challengeMap = {};
+    challenges.forEach(ch => { challengeMap[ch.id] = ch; });
+
+    // --- By Category ---
+    const categoryGroups = {};
+    results.forEach(r => {
+        const ch = challengeMap[r.challenge];
+        if (!ch) return;
+        const cat = ch.category;
+        if (!categoryGroups[cat]) {
+            categoryGroups[cat] = { tp: 0, fp: 0, fn: 0, gt: 0, found: 0 };
+        }
+        categoryGroups[cat].tp += r.metrics.true_positives;
+        categoryGroups[cat].fp += r.metrics.false_positives;
+        categoryGroups[cat].fn += r.metrics.false_negatives;
+    });
+
+    const byCategory = Object.entries(categoryGroups).map(([name, g]) => {
+        const precision = g.tp + g.fp > 0 ? g.tp / (g.tp + g.fp) : 0;
+        const recall = g.tp + g.fn > 0 ? g.tp / (g.tp + g.fn) : 0;
+        const f1 = precision + recall > 0 ? 2 * precision * recall / (precision + recall) : 0;
+        return {
+            name, precision, recall, f1_score: f1,
+            total_issues: g.tp + g.fn,
+            total_found: g.tp
+        };
+    }).sort((a, b) => b.f1_score - a.f1_score);
+
+    // --- By Language ---
+    const languageGroups = {};
+    results.forEach(r => {
+        const ch = challengeMap[r.challenge];
+        if (!ch) return;
+        const lang = ch.language || 'unknown';
+        if (!languageGroups[lang]) {
+            languageGroups[lang] = { tp: 0, fp: 0, fn: 0, challenges: new Set() };
+        }
+        languageGroups[lang].tp += r.metrics.true_positives;
+        languageGroups[lang].fp += r.metrics.false_positives;
+        languageGroups[lang].fn += r.metrics.false_negatives;
+        languageGroups[lang].challenges.add(r.challenge);
+    });
+
+    const byLanguage = Object.entries(languageGroups).map(([name, g]) => {
+        const precision = g.tp + g.fp > 0 ? g.tp / (g.tp + g.fp) : 0;
+        const recall = g.tp + g.fn > 0 ? g.tp / (g.tp + g.fn) : 0;
+        const f1 = precision + recall > 0 ? 2 * precision * recall / (precision + recall) : 0;
+        return {
+            name, precision, recall, f1_score: f1,
+            total_issues: g.tp + g.fn,
+            total_found: g.tp,
+            challenges: g.challenges.size
+        };
+    }).sort((a, b) => b.f1_score - a.f1_score);
+
+    benchmarkData.metrics_breakdown = {
+        by_category: byCategory,
+        by_language: byLanguage,
+        by_severity: [] // Not available from current data
+    };
+}
+
 function renderMetricsBreakdown() {
-    if (!benchmarkData.metrics_breakdown) {
+    if (!benchmarkData || !benchmarkData.metrics_breakdown) {
+        const container = document.getElementById('metrics-breakdown');
+        if (container) {
+            container.innerHTML = '<p class="no-data">No breakdown data available yet.</p>';
+        }
         return;
     }
 
@@ -826,7 +933,6 @@ function renderMetricsBreakdown() {
     container.innerHTML = `
         <div class="breakdown-tabs">
             <button class="tab-btn active" data-tab="category">By Category</button>
-            <button class="tab-btn" data-tab="severity">By Severity</button>
             <button class="tab-btn" data-tab="language">By Language</button>
         </div>
         <div id="breakdown-content">
@@ -846,9 +952,6 @@ function renderMetricsBreakdown() {
             switch (tab) {
                 case 'category':
                     content.innerHTML = renderCategoryBreakdown();
-                    break;
-                case 'severity':
-                    content.innerHTML = renderSeverityBreakdown();
                     break;
                 case 'language':
                     content.innerHTML = renderLanguageBreakdown();

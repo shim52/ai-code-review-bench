@@ -143,6 +143,11 @@
                             <span class="metric-desc">The balanced combination of precision and recall (harmonic
                                 mean).</span>
                         </div>
+                        <div class="metric-item">
+                            <span class="metric-name">F2 Score</span>
+                            <span class="metric-desc">A recall-weighted F-score that values finding issues 2× more
+                                than avoiding false alarms — our <strong>primary ranking metric</strong>.</span>
+                        </div>
                     </div>
                 </div>
 
@@ -194,7 +199,7 @@
     </section>
 
     <!-- Performance Trends Section -->
-    <section class="trends-section">
+    <section class="trends-section" id="trends-section">
         <div class="container">
             <h2>Performance Trends</h2>
             <div class="trends-container">
@@ -233,9 +238,11 @@
                         <div class="metric-selector">
                             <label>Sort by:</label>
                             <select id="metric-select">
+                                <option value="f2_score" selected>F2 Score</option>
                                 <option value="f1_score">F1 Score</option>
                                 <option value="precision">Precision</option>
                                 <option value="recall">Recall</option>
+                                <option value="issues_found">Issues Found</option>
                             </select>
                         </div>
                     </div>

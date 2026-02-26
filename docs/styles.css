@@ -858,8 +858,8 @@ select {
 
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
 }
 
 .metric {
@@ -877,6 +877,22 @@ select {
     font-size: 0.75rem;
     color: var(--text-secondary);
     text-transform: uppercase;
+}
+
+.metric-highlighted {
+    background: var(--bg-tertiary);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    position: relative;
+}
+
+.metric-highlighted::after {
+    content: '▾';
+    position: absolute;
+    top: 0.15rem;
+    right: 0.35rem;
+    font-size: 0.6rem;
+    color: var(--color-info);
 }
 
 /* ===== Score Colors ===== */
@@ -1268,8 +1284,8 @@ select {
     }
 
     .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
     }
 
     .challenges-grid,
