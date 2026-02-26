@@ -87,7 +87,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add docs/site/data/
+          git add docs/data/
           git add results/
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
           git commit -m "Benchmark results: $TIMESTAMP" || echo "No changes to commit"
@@ -111,7 +111,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/site
+          path: docs
 
       - name: Deploy to GitHub Pages
         id: deployment

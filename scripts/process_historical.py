@@ -50,7 +50,7 @@ def process_historical_data():
 
     # Paths
     latest_report = project_root / 'results' / 'latest' / 'report.json'
-    historical_file = project_root / 'docs' / 'site' / 'data' / 'historical.json'
+    historical_file = project_root / 'docs' / 'data' / 'historical.json'
 
     if not latest_report.exists():
         print("No latest report found, skipping historical processing")

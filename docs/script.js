@@ -99,7 +99,7 @@ async function loadBenchmarkData() {
             });
         } catch (xhrError) {
             console.error('Failed to load benchmark data:', xhrError);
-            showError('Failed to load data. If opening locally, run: python3 -m http.server 8000 --directory docs/site');
+            showError('Failed to load data. If opening locally, run: python3 -m http.server 8000 --directory docs');
         }
     }
 }
@@ -784,7 +784,7 @@ function renderTrendChart() {
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
                         }
                     }
@@ -795,7 +795,7 @@ function renderTrendChart() {
                     beginAtZero: true,
                     max: 100,
                     ticks: {
-                        callback: function(value) {
+                        callback: function (value) {
                             return value + '%';
                         }
                     },
@@ -843,7 +843,7 @@ function renderMetricsBreakdown() {
             const tab = btn.dataset.tab;
             const content = document.getElementById('breakdown-content');
 
-            switch(tab) {
+            switch (tab) {
                 case 'category':
                     content.innerHTML = renderCategoryBreakdown();
                     break;
@@ -982,7 +982,7 @@ function renderLanguageBreakdown() {
 function renderBreakdownCharts(type) {
     let data, labels, chartId;
 
-    switch(type) {
+    switch (type) {
         case 'category':
             data = benchmarkData.metrics_breakdown.by_category;
             labels = data.map(d => d.name);
@@ -1039,7 +1039,7 @@ function renderBreakdownCharts(type) {
                     beginAtZero: true,
                     max: 100,
                     ticks: {
-                        callback: function(value) {
+                        callback: function (value) {
                             return value + '%';
                         }
                     }

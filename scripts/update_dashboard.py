@@ -2,7 +2,7 @@
 """Update dashboard data from latest benchmark results.
 
 Transforms the evaluator's report.json into the benchmark-results.json
-format expected by the docs/site UI.
+format expected by the docs/ UI.
 """
 
 import json
@@ -282,7 +282,7 @@ def update_dashboard_data():
     project_root = Path(__file__).resolve().parents[1]
 
     latest_report_path = project_root / "results" / "latest" / "report.json"
-    dashboard_path = project_root / "docs" / "site" / "data" / "benchmark-results.json"
+    dashboard_path = project_root / "docs" / "data" / "benchmark-results.json"
     challenges_dir = project_root / "challenges"
 
     if not latest_report_path.exists():
