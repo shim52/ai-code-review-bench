@@ -115,7 +115,7 @@ See `docs/evaluation-methodology.md` for details.
 ```bash
 # Fork and clone the repository
 git clone https://github.com/shim52/ai-code-review-bench.git
-cd code-review-benchmark
+cd ai-code-review-bench
 
 # Install in development mode
 pip install -e ".[dev]"

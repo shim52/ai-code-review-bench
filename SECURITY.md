@@ -6,8 +6,8 @@ We release patches for security vulnerabilities. Currently supported versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
-| < 0.1   | :x:                |
+| 1.0.x   | :white_check_mark: |
+| < 1.0   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -18,7 +18,7 @@ We take the security of Code Review Benchmark seriously. If you believe you have
 - Discuss the vulnerability publicly before it's fixed
 
 ### Please DO:
-- Email us at `security@example.com` with details
+- Report via [GitHub Security Advisories](https://github.com/shim52/ai-code-review-bench/security/advisories/new)
 - Include steps to reproduce if possible
 - Allow us reasonable time to fix the issue before disclosure
 
@@ -75,6 +75,6 @@ We thank the following individuals for responsibly disclosing vulnerabilities:
 
 ## Contact
 
-For security concerns, please email: `security@example.com`
+For security concerns, please use [GitHub Security Advisories](https://github.com/shim52/ai-code-review-bench/security/advisories/new).
 
-For general questions, use [GitHub Discussions](https://github.com/yourusername/code-review-benchmark/discussions).
+For general questions, use [GitHub Discussions](https://github.com/shim52/ai-code-review-bench/discussions).

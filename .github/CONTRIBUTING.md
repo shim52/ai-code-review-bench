@@ -35,7 +35,7 @@ Not sure where to start? Here are some good first issues:
 - **Add a Tool** - Integrate a new AI code review tool
 - **Create a Challenge** - Design a new test case
 
-Check our [issue tracker](https://github.com/yourusername/code-review-benchmark/issues) for current tasks.
+Check our [issue tracker](https://github.com/shim52/ai-code-review-bench/issues) for current tasks.
 
 ## Development Setup
 
@@ -50,8 +50,8 @@ Check our [issue tracker](https://github.com/yourusername/code-review-benchmark/
 1. **Fork the repository**
    ```bash
    # Click the "Fork" button on GitHub, then:
-   git clone https://github.com/YOUR-USERNAME/code-review-benchmark.git
-   cd code-review-benchmark
+   git clone https://github.com/YOUR-USERNAME/ai-code-review-bench.git
+   cd ai-code-review-bench
    ```
 
 2. **Create a virtual environment**
@@ -323,16 +323,15 @@ def test_parser_handles_empty_output():
 
 ### Getting Help
 
-- 💬 [GitHub Discussions](https://github.com/yourusername/code-review-benchmark/discussions) - Ask questions
-- 🐛 [Issue Tracker](https://github.com/yourusername/code-review-benchmark/issues) - Report bugs
-- 📧 Email: maintainers@example.com
+- 💬 [GitHub Discussions](https://github.com/shim52/ai-code-review-bench/discussions) - Ask questions
+- 🐛 [Issue Tracker](https://github.com/shim52/ai-code-review-bench/issues) - Report bugs
 
 ### Recognition
 
 Contributors are recognized in:
 - The README contributors section
 - Release notes
-- Our [Contributors page](https://github.com/yourusername/code-review-benchmark/contributors)
+- Our [Contributors page](https://github.com/shim52/ai-code-review-bench/contributors)
 
 ## Questions?
 

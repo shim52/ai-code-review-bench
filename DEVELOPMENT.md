@@ -5,7 +5,7 @@ This guide covers the technical details for developing Code Review Benchmark.
 ## Architecture Overview
 
 ```
-code-review-benchmark/
+ai-code-review-bench/
 ├── src/code_review_benchmark/
 │   ├── cli/              # CLI commands and interface
 │   ├── runners/          # Tool runner implementations
@@ -73,7 +73,7 @@ Two-phase evaluation:
 ```bash
 # Clone and install
 git clone <repo>
-cd code-review-benchmark
+cd ai-code-review-bench
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
@@ -392,20 +392,20 @@ python -m pstats profile.stats
 1. **Update Version**
    ```python
    # pyproject.toml
-   version = "0.2.0"
+   version = "1.1.0"
    ```
 
 2. **Update CHANGELOG**
    ```markdown
-   ## [0.2.0] - 2024-XX-XX
+   ## [1.1.0] - 2026-XX-XX
    ### Added
    - New features...
    ```
 
 3. **Create Release**
    ```bash
-   git tag v0.2.0
-   git push origin v0.2.0
+   git tag v1.1.0
+   git push origin v1.1.0
    ```
 
 4. **Build and Publish**
