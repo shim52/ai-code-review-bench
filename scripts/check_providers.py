@@ -69,7 +69,12 @@ if __name__ == "__main__":
     print()
 
     results = []
-    for name, fn in [("OpenAI", check_openai), ("Anthropic/Bedrock", check_anthropic), ("Google Gemini", check_google)]:
+    providers = [
+        ("OpenAI", check_openai),
+        ("Anthropic/Bedrock", check_anthropic),
+        ("Google Gemini", check_google),
+    ]
+    for name, fn in providers:
         print(f"Checking {name}...", end=" ", flush=True)
         result = fn()
         print(result)

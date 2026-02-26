@@ -86,7 +86,7 @@ def _extract_json(text: str) -> dict:
     if text.startswith("```"):
         lines = text.split("\n")
         # Remove first line (```json) and last line (```)
-        lines = [l for l in lines[1:] if l.strip() != "```"]
+        lines = [ln for ln in lines[1:] if ln.strip() != "```"]
         text = "\n".join(lines).strip()
     try:
         return json.loads(text)
@@ -96,7 +96,11 @@ def _extract_json(text: str) -> dict:
         end = text.rfind("}") + 1
         if start >= 0 and end > start:
             return json.loads(text[start:end])
-        return {"matched": False, "confidence": 0.0, "explanation": "Failed to parse judge response"}
+        return {
+            "matched": False,
+            "confidence": 0.0,
+            "explanation": "Failed to parse judge response",
+        }
 
 
 def llm_judge_match(

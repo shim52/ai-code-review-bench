@@ -7,10 +7,9 @@ format expected by the docs/site UI.
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import yaml
-
 
 # ── Tool metadata (enriched info not in report.json) ──
 
@@ -21,7 +20,10 @@ TOOL_METADATA: Dict[str, Dict[str, Any]] = {
         "stars": 10254,
         "license": "AGPL-3.0",
         "install_cmd": "pip install 'git+https://github.com/qodo-ai/pr-agent.git@main'",
-        "description": "AI-powered code review and suggestions by Qodo, using LLMs to analyze pull requests",
+        "description": (
+            "AI-powered code review and suggestions by Qodo,"
+            " using LLMs to analyze pull requests"
+        ),
         "llm_model": "gpt-5.2-2025-12-11 (default)",
         "tool_type": "agent",
     },
@@ -41,7 +43,10 @@ TOOL_METADATA: Dict[str, Dict[str, Any]] = {
         "stars": 0,
         "license": "Proprietary",
         "install_cmd": "pip install anthropic",
-        "description": "General-purpose Claude Opus model prompted to do code review via API — not a dedicated code review agent",
+        "description": (
+            "General-purpose Claude Opus model prompted to do code review"
+            " via API — not a dedicated code review agent"
+        ),
         "llm_model": "claude-opus-4-20250514",
         "tool_type": "pure_model",
     },
@@ -51,7 +56,10 @@ TOOL_METADATA: Dict[str, Dict[str, Any]] = {
         "stars": 0,
         "license": "Proprietary",
         "install_cmd": "pip install openai",
-        "description": "General-purpose GPT-4o model prompted to do code review via API — not a dedicated code review agent",
+        "description": (
+            "General-purpose GPT-4o model prompted to do code review"
+            " via API — not a dedicated code review agent"
+        ),
         "llm_model": "gpt-4o",
         "tool_type": "pure_model",
     },
@@ -61,7 +69,10 @@ TOOL_METADATA: Dict[str, Dict[str, Any]] = {
         "stars": 0,
         "license": "Proprietary",
         "install_cmd": "pip install google-genai",
-        "description": "General-purpose Gemini Pro model prompted to do code review via API — not a dedicated code review agent",
+        "description": (
+            "General-purpose Gemini Pro model prompted to do code review"
+            " via API — not a dedicated code review agent"
+        ),
         "llm_model": "gemini-2.5-pro",
         "tool_type": "pure_model",
     },
@@ -123,7 +134,10 @@ def tool_display_name(tool_id: str) -> str:
     return meta["display_name"] if meta else tool_id
 
 
-def transform_report(report: Dict[str, Any], challenges_meta: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+def transform_report(
+    report: Dict[str, Any],
+    challenges_meta: Dict[str, Dict[str, Any]],
+) -> Dict[str, Any]:
     """Transform evaluator report.json into the UI's benchmark-results.json format."""
 
     # ── Metadata ──
@@ -134,7 +148,11 @@ def transform_report(report: Dict[str, Any], challenges_meta: Dict[str, Dict[str
         "timestamp": report.get("timestamp", ""),
         "benchmark_version": "1.0.0",
         "total_runs": report.get("num_runs", 1),
-        "evaluation_method": "heuristic" if "heuristic" in report.get("judge_model", "") else "heuristic+llm_judge",
+        "evaluation_method": (
+            "heuristic"
+            if "heuristic" in report.get("judge_model", "")
+            else "heuristic+llm_judge"
+        ),
         "challenges_count": len(challenge_ids),
         "tools_count": len(tool_entries),
         "llm_note": "Each tool ran with its default LLM model",

@@ -14,5 +14,6 @@ env/
 .ruff_cache/
 results/raw/
 results/runs/
+results/latest
 *.tmp
 .DS_Store
