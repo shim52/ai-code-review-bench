@@ -1,37 +1,16 @@
 {
   "metadata": {
-    "timestamp": "2026-02-23T20:14:39Z",
+    "timestamp": "2026-02-26T11:55:54.373135+00:00",
     "benchmark_version": "1.0.0",
     "total_runs": 1,
-    "evaluation_method": "heuristic",
-    "challenges_count": 10,
-    "tools_count": 4,
-    "llm_note": "Each tool ran with its default LLM model"
+    "evaluation_method": "heuristic+llm_judge",
+    "challenges_count": 12,
+    "tools_count": 5,
+    "llm_note": "Each tool ran with its default LLM model",
+    "llm_judge_model": "claude-sonnet-4-20250514"
   },
   "system_prompt": "You are an expert code reviewer. You will receive a git diff representing changes in a pull request. Analyze the diff carefully and identify all issues, bugs, security vulnerabilities, performance problems, and other concerns.\n\nFor each finding, output it in this exact format:\n\n### Finding N\n- **File**: <file path>\n- **Lines**: <start_line>-<end_line> (or just <line> if single line)\n- **Severity**: <critical|high|medium|low|info>\n- **Category**: <security|bug|performance|error-handling|type-safety|style|other>\n- **Title**: <short title>\n- **Description**: <detailed explanation of the issue and why it matters>\n\nFocus on:\n- Security vulnerabilities (injection, XSS, CSRF, etc.)\n- Bugs and logic errors\n- Missing error handling\n- Performance issues (N+1 queries, memory leaks, etc.)\n- Race conditions\n- Type safety issues\n- Information disclosure\n\nDo NOT report:\n- Style preferences or formatting\n- Missing documentation (unless it hides a real issue)\n- Minor naming suggestions\n\nIf there are no significant issues, output:\n### No Issues Found",
   "tools": [
-    {
-      "name": "PR-Agent",
-      "version": "0.26",
-      "github_url": "https://github.com/qodo-ai/pr-agent",
-      "stars": 10254,
-      "license": "AGPL-3.0",
-      "install_cmd": "pip install 'git+https://github.com/qodo-ai/pr-agent.git@main'",
-      "description": "AI-powered code review and suggestions by Qodo, using LLMs to analyze pull requests",
-      "llm_model": "gpt-5.2-2025-12-11 (default)",
-      "tool_type": "agent"
-    },
-    {
-      "name": "Shippie",
-      "version": "latest",
-      "github_url": "https://github.com/mattzcarey/shippie",
-      "stars": 2333,
-      "license": "MIT",
-      "install_cmd": "npm install -g shippie",
-      "description": "Open-source, extensible AI code review agent with local and CI support",
-      "llm_model": "gpt-4.1-mini (default)",
-      "tool_type": "agent"
-    },
     {
       "name": "Claude Reviewer",
       "version": "claude-opus-4-20250514",
@@ -44,6 +23,17 @@
       "tool_type": "pure_model"
     },
     {
+      "name": "Gemini Reviewer",
+      "version": "gemini-2.5-pro",
+      "github_url": "https://ai.google.dev/gemini-api/docs",
+      "stars": 0,
+      "license": "Proprietary",
+      "install_cmd": "pip install google-genai",
+      "description": "General-purpose Gemini Pro model prompted to do code review via API — not a dedicated code review agent",
+      "llm_model": "gemini-2.5-pro",
+      "tool_type": "pure_model"
+    },
+    {
       "name": "OpenAI Reviewer",
       "version": "gpt-4o",
       "github_url": "https://platform.openai.com/docs/models",
@@ -53,6 +43,28 @@
       "description": "General-purpose GPT-4o model prompted to do code review via API — not a dedicated code review agent",
       "llm_model": "gpt-4o",
       "tool_type": "pure_model"
+    },
+    {
+      "name": "PR-Agent",
+      "version": "gpt-5.2-2025-12-11 (default)",
+      "github_url": "https://github.com/qodo-ai/pr-agent",
+      "stars": 10254,
+      "license": "AGPL-3.0",
+      "install_cmd": "pip install 'git+https://github.com/qodo-ai/pr-agent.git@main'",
+      "description": "AI-powered code review and suggestions by Qodo, using LLMs to analyze pull requests",
+      "llm_model": "gpt-5.2-2025-12-11 (default)",
+      "tool_type": "agent"
+    },
+    {
+      "name": "Shippie",
+      "version": "gpt-4.1-mini (default)",
+      "github_url": "https://github.com/mattzcarey/shippie",
+      "stars": 2333,
+      "license": "MIT",
+      "install_cmd": "npm install -g shippie",
+      "description": "Open-source, extensible AI code review agent with local and CI support",
+      "llm_model": "gpt-4.1-mini (default)",
+      "tool_type": "agent"
     }
   ],
   "challenges": [
@@ -62,7 +74,17 @@
       "category": "Security",
       "difficulty": "Easy",
       "ground_truth_issues": 3,
-      "description": "PR adds a configuration file with hardcoded API keys, database passwords, and JWT secrets."
+      "description": "PR adds a configuration file with hardcoded API keys, database passwords, and JWT secrets.",
+      "language": "typescript"
+    },
+    {
+      "id": "insecure-deserialization",
+      "name": "Insecure Deserialization with Pickle",
+      "category": "Security",
+      "difficulty": "Medium",
+      "ground_truth_issues": 2,
+      "description": "PR adds a session caching mechanism that uses pickle to serialize/deserialize user-supplied data, enabling remote code execution.",
+      "language": "python"
     },
     {
       "id": "memory-leak-cache",
@@ -70,7 +92,8 @@
       "category": "Performance",
       "difficulty": "Hard",
       "ground_truth_issues": 8,
-      "description": "PR adds analytics and subscription features to cache but introduces multiple memory leaks through retained references, unbounded arrays, and improper cleanup."
+      "description": "PR adds analytics and subscription features to cache but introduces multiple memory leaks through retained references, unbounded arrays, and improper cleanup.",
+      "language": "typescript"
     },
     {
       "id": "missing-await-async",
@@ -78,15 +101,17 @@
       "category": "Bug",
       "difficulty": "Medium",
       "ground_truth_issues": 3,
-      "description": "PR adds a user registration flow that forgets to await several async operations, causing race conditions and silent failures."
+      "description": "PR adds a user registration flow that forgets to await several async operations, causing race conditions and silent failures.",
+      "language": "typescript"
     },
     {
       "id": "multi-file-refactoring",
       "name": "Poor Multi-File Refactoring with Design Issues",
-      "category": "Architecture",
+      "category": "Design",
       "difficulty": "Hard",
       "ground_truth_issues": 8,
-      "description": "PR refactors order management system to add features but introduces circular dependencies, breaks encapsulation, and violates separation of concerns."
+      "description": "PR refactors order management system to add features but introduces circular dependencies, breaks encapsulation, and violates separation of concerns.",
+      "language": "typescript"
     },
     {
       "id": "n-plus-one-query",
@@ -94,7 +119,8 @@
       "category": "Performance",
       "difficulty": "Hard",
       "ground_truth_issues": 2,
-      "description": "PR adds an endpoint that fetches a list of orders and then queries for each order's items individually inside a loop, creating an N+1 query problem."
+      "description": "PR adds an endpoint that fetches a list of orders and then queries for each order's items individually inside a loop, creating an N+1 query problem.",
+      "language": "typescript"
     },
     {
       "id": "off-by-one-pagination",
@@ -102,7 +128,8 @@
       "category": "Bug",
       "difficulty": "Medium",
       "ground_truth_issues": 2,
-      "description": "PR adds a paginated list endpoint with an off-by-one error that causes the last item to be duplicated across pages or an item to be skipped."
+      "description": "PR adds a paginated list endpoint with an off-by-one error that causes the last item to be duplicated across pages or an item to be skipped.",
+      "language": "typescript"
     },
     {
       "id": "race-condition-counter",
@@ -110,7 +137,17 @@
       "category": "Bug",
       "difficulty": "Hard",
       "ground_truth_issues": 4,
-      "description": "PR adds in-memory caching to analytics service, introducing race conditions when multiple requests increment counters concurrently."
+      "description": "PR adds in-memory caching to analytics service, introducing race conditions when multiple requests increment counters concurrently.",
+      "language": "typescript"
+    },
+    {
+      "id": "sql-injection-django",
+      "name": "SQL Injection in Django View",
+      "category": "Security",
+      "difficulty": "Medium",
+      "ground_truth_issues": 2,
+      "description": "PR adds a product search endpoint using raw SQL queries with string formatting instead of Django ORM parameterization.",
+      "language": "python"
     },
     {
       "id": "sql-injection-express",
@@ -118,7 +155,8 @@
       "category": "Security",
       "difficulty": "Medium",
       "ground_truth_issues": 2,
-      "description": "PR introduces a user search endpoint that uses string interpolation to build SQL queries, creating a SQL injection vulnerability."
+      "description": "PR introduces a user search endpoint that uses string interpolation to build SQL queries, creating a SQL injection vulnerability.",
+      "language": "typescript"
     },
     {
       "id": "typescript-type-safety",
@@ -126,52 +164,938 @@
       "category": "Bug",
       "difficulty": "Medium",
       "ground_truth_issues": 6,
-      "description": "PR relaxes type checking to handle external data, introducing multiple type safety issues and potential runtime errors."
+      "description": "PR relaxes type checking to handle external data, introducing multiple type safety issues and potential runtime errors.",
+      "language": "typescript"
     },
     {
       "id": "xss-react-component",
       "name": "XSS Vulnerability in React Comment Component",
       "category": "Security",
       "difficulty": "Medium",
-      "ground_truth_issues": 3,
-      "description": "PR adds HTML rendering support to a comment display component, introducing XSS vulnerabilities through dangerouslySetInnerHTML."
+      "ground_truth_issues": 2,
+      "description": "PR adds HTML rendering support to a comment display component, introducing XSS vulnerabilities through dangerouslySetInnerHTML.",
+      "language": "typescript"
     }
   ],
   "results": [
     {
+      "tool": "Claude Reviewer",
+      "challenge": "hardcoded-secrets",
+      "metrics": {
+        "precision": 0.5667,
+        "recall": 1.0,
+        "f1_score": 0.7222,
+        "true_positives": 3,
+        "false_positives": 2,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.75
+          },
+          {
+            "f1_score": 0.75
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "insecure-deserialization",
+      "metrics": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1_score": 0.6667,
+        "true_positives": 2,
+        "false_positives": 2,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "memory-leak-cache",
+      "metrics": {
+        "precision": 0.8296,
+        "recall": 1.0,
+        "f1_score": 0.9063,
+        "true_positives": 8,
+        "false_positives": 2,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8889
+          },
+          {
+            "f1_score": 0.8889
+          },
+          {
+            "f1_score": 0.9412
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "missing-await-async",
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.8889,
+        "f1_score": 0.9333,
+        "true_positives": 3,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "multi-file-refactoring",
+      "metrics": {
+        "precision": 0.9583,
+        "recall": 0.9583,
+        "f1_score": 0.9583,
+        "true_positives": 8,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 0.875
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "n-plus-one-query",
+      "metrics": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1_score": 0.6667,
+        "true_positives": 2,
+        "false_positives": 2,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "off-by-one-pagination",
+      "metrics": {
+        "precision": 0.4333,
+        "recall": 1.0,
+        "f1_score": 0.6032,
+        "true_positives": 2,
+        "false_positives": 3,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.5714
+          },
+          {
+            "f1_score": 0.5714
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "race-condition-counter",
+      "metrics": {
+        "precision": 0.8,
+        "recall": 1.0,
+        "f1_score": 0.8889,
+        "true_positives": 4,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8889
+          },
+          {
+            "f1_score": 0.8889
+          },
+          {
+            "f1_score": 0.8889
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "sql-injection-django",
+      "metrics": {
+        "precision": 0.4667,
+        "recall": 1.0,
+        "f1_score": 0.6349,
+        "true_positives": 2,
+        "false_positives": 2,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.5714
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "sql-injection-express",
+      "metrics": {
+        "precision": 0.4333,
+        "recall": 1.0,
+        "f1_score": 0.6032,
+        "true_positives": 2,
+        "false_positives": 3,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.5714
+          },
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.5714
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "typescript-type-safety",
+      "metrics": {
+        "precision": 0.6445,
+        "recall": 1.0,
+        "f1_score": 0.7833,
+        "true_positives": 6,
+        "false_positives": 3,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.75
+          },
+          {
+            "f1_score": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Claude Reviewer",
+      "challenge": "xss-react-component",
+      "metrics": {
+        "precision": 0.6667,
+        "recall": 1.0,
+        "f1_score": 0.8,
+        "true_positives": 2,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "hardcoded-secrets",
+      "metrics": {
+        "precision": 0.9167,
+        "recall": 0.5555,
+        "f1_score": 0.619,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.5
+          },
+          {
+            "f1_score": 0.8571
+          },
+          {
+            "f1_score": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "insecure-deserialization",
+      "metrics": {
+        "precision": 0.7222,
+        "recall": 0.8333,
+        "f1_score": 0.7111,
+        "true_positives": 2,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "memory-leak-cache",
+      "metrics": {
+        "precision": 0.8963,
+        "recall": 1.0,
+        "f1_score": 0.9434,
+        "true_positives": 8,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 0.8889
+          },
+          {
+            "f1_score": 0.9412
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "missing-await-async",
+      "metrics": {
+        "precision": 0.9167,
+        "recall": 0.5555,
+        "f1_score": 0.619,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.8571
+          },
+          {
+            "f1_score": 0.5
+          },
+          {
+            "f1_score": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "multi-file-refactoring",
+      "metrics": {
+        "precision": 0.8889,
+        "recall": 0.625,
+        "f1_score": 0.7326,
+        "true_positives": 5,
+        "false_positives": 1,
+        "false_negatives": 3,
+        "runs": [
+          {
+            "f1_score": 0.7143
+          },
+          {
+            "f1_score": 0.7692
+          },
+          {
+            "f1_score": 0.7143
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "n-plus-one-query",
+      "metrics": {
+        "precision": 0.7778,
+        "recall": 1.0,
+        "f1_score": 0.8667,
+        "true_positives": 2,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "off-by-one-pagination",
+      "metrics": {
+        "precision": 0.4667,
+        "recall": 1.0,
+        "f1_score": 0.6349,
+        "true_positives": 2,
+        "false_positives": 2,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.5714
+          },
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "race-condition-counter",
+      "metrics": {
+        "precision": 0.7556,
+        "recall": 1.0,
+        "f1_score": 0.8593,
+        "true_positives": 4,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8889
+          },
+          {
+            "f1_score": 0.8889
+          },
+          {
+            "f1_score": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "sql-injection-django",
+      "metrics": {
+        "precision": 0.7222,
+        "recall": 0.8333,
+        "f1_score": 0.7111,
+        "true_positives": 2,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "sql-injection-express",
+      "metrics": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1_score": 0.6667,
+        "true_positives": 2,
+        "false_positives": 2,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "typescript-type-safety",
+      "metrics": {
+        "precision": 0.9167,
+        "recall": 1.0,
+        "f1_score": 0.9524,
+        "true_positives": 6,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8571
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "challenge": "xss-react-component",
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "hardcoded-secrets",
+      "metrics": {
+        "precision": 0.9167,
+        "recall": 0.6667,
+        "f1_score": 0.719,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.8571
+          },
+          {
+            "f1_score": 0.5
+          },
+          {
+            "f1_score": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "insecure-deserialization",
+      "metrics": {
+        "precision": 0.5556,
+        "recall": 1.0,
+        "f1_score": 0.7,
+        "true_positives": 2,
+        "false_positives": 2,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.5
+          },
+          {
+            "f1_score": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "memory-leak-cache",
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.7917,
+        "f1_score": 0.8754,
+        "true_positives": 6,
+        "false_positives": 0,
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 0.7692
+          },
+          {
+            "f1_score": 0.8571
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "missing-await-async",
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.7778,
+        "f1_score": 0.8667,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "multi-file-refactoring",
+      "metrics": {
+        "precision": 0.9028,
+        "recall": 0.7917,
+        "f1_score": 0.8409,
+        "true_positives": 6,
+        "false_positives": 1,
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 0.7143
+          },
+          {
+            "f1_score": 0.875
+          },
+          {
+            "f1_score": 0.9333
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "n-plus-one-query",
+      "metrics": {
+        "precision": 0.8889,
+        "recall": 1.0,
+        "f1_score": 0.9333,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "off-by-one-pagination",
+      "metrics": {
+        "precision": 0.7778,
+        "recall": 1.0,
+        "f1_score": 0.8667,
+        "true_positives": 2,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "race-condition-counter",
+      "metrics": {
+        "precision": 0.9333,
+        "recall": 0.9167,
+        "f1_score": 0.9153,
+        "true_positives": 4,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8889
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 0.8571
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "sql-injection-django",
+      "metrics": {
+        "precision": 0.7778,
+        "recall": 1.0,
+        "f1_score": 0.8667,
+        "true_positives": 2,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 0.8
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "sql-injection-express",
+      "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "true_positives": 2,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "typescript-type-safety",
+      "metrics": {
+        "precision": 0.9167,
+        "recall": 1.0,
+        "f1_score": 0.9524,
+        "true_positives": 6,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 1.0
+          },
+          {
+            "f1_score": 0.8571
+          }
+        ]
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "challenge": "xss-react-component",
+      "metrics": {
+        "precision": 0.6667,
+        "recall": 1.0,
+        "f1_score": 0.8,
+        "true_positives": 2,
+        "false_positives": 1,
+        "false_negatives": 0,
+        "runs": [
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.8
+          },
+          {
+            "f1_score": 0.8
+          }
+        ]
+      }
+    },
+    {
       "tool": "PR-Agent",
       "challenge": "hardcoded-secrets",
       "metrics": {
-        "precision": 0.3333,
-        "recall": 0.6667,
-        "f1_score": 0.4444,
+        "precision": 0.2778,
+        "recall": 0.5556,
+        "f1_score": 0.3703,
         "true_positives": 2,
         "false_positives": 4,
-        "false_negatives": 1
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.2222
+          },
+          {
+            "f1_score": 0.4444
+          },
+          {
+            "f1_score": 0.4444
+          }
+        ]
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "insecure-deserialization",
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 6,
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
       }
     },
     {
       "tool": "PR-Agent",
       "challenge": "memory-leak-cache",
       "metrics": {
-        "precision": 0.3333,
-        "recall": 0.25,
-        "f1_score": 0.2857,
-        "true_positives": 2,
-        "false_positives": 4,
-        "false_negatives": 6
+        "precision": 0.1667,
+        "recall": 0.125,
+        "f1_score": 0.1429,
+        "true_positives": 1,
+        "false_positives": 5,
+        "false_negatives": 7,
+        "runs": [
+          {
+            "f1_score": 0.1429
+          },
+          {
+            "f1_score": 0.1429
+          },
+          {
+            "f1_score": 0.1429
+          }
+        ]
       }
     },
     {
       "tool": "PR-Agent",
       "challenge": "missing-await-async",
       "metrics": {
-        "precision": 0.5,
-        "recall": 1.0,
-        "f1_score": 0.6667,
-        "true_positives": 3,
-        "false_positives": 3,
-        "false_negatives": 0
+        "precision": 0.1667,
+        "recall": 0.3333,
+        "f1_score": 0.2222,
+        "true_positives": 1,
+        "false_positives": 5,
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 0.2222
+          },
+          {
+            "f1_score": 0.2222
+          },
+          {
+            "f1_score": 0.2222
+          }
+        ]
       }
     },
     {
@@ -183,7 +1107,18 @@
         "f1_score": 0.0,
         "true_positives": 0,
         "false_positives": 6,
-        "false_negatives": 8
+        "false_negatives": 8,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
       }
     },
     {
@@ -195,19 +1130,41 @@
         "f1_score": 0.25,
         "true_positives": 1,
         "false_positives": 5,
-        "false_negatives": 1
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.25
+          },
+          {
+            "f1_score": 0.25
+          },
+          {
+            "f1_score": 0.25
+          }
+        ]
       }
     },
     {
       "tool": "PR-Agent",
       "challenge": "off-by-one-pagination",
       "metrics": {
-        "precision": 0.1667,
-        "recall": 0.5,
-        "f1_score": 0.25,
+        "precision": 0.1111,
+        "recall": 0.3333,
+        "f1_score": 0.1667,
         "true_positives": 1,
         "false_positives": 5,
-        "false_negatives": 1
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.25
+          },
+          {
+            "f1_score": 0.25
+          }
+        ]
       }
     },
     {
@@ -219,7 +1176,41 @@
         "f1_score": 0.0,
         "true_positives": 0,
         "false_positives": 6,
-        "false_negatives": 4
+        "false_negatives": 4,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "tool": "PR-Agent",
+      "challenge": "sql-injection-django",
+      "metrics": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 6,
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
       }
     },
     {
@@ -231,7 +1222,18 @@
         "f1_score": 0.25,
         "true_positives": 1,
         "false_positives": 5,
-        "false_negatives": 1
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.25
+          },
+          {
+            "f1_score": 0.25
+          },
+          {
+            "f1_score": 0.25
+          }
+        ]
       }
     },
     {
@@ -243,55 +1245,133 @@
         "f1_score": 0.0,
         "true_positives": 0,
         "false_positives": 6,
-        "false_negatives": 6
+        "false_negatives": 6,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
       }
     },
     {
       "tool": "PR-Agent",
       "challenge": "xss-react-component",
       "metrics": {
-        "precision": 0.5,
-        "recall": 1.0,
-        "f1_score": 0.6667,
-        "true_positives": 3,
-        "false_positives": 3,
-        "false_negatives": 0
+        "precision": 0.1667,
+        "recall": 0.5,
+        "f1_score": 0.25,
+        "true_positives": 1,
+        "false_positives": 5,
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.25
+          },
+          {
+            "f1_score": 0.25
+          },
+          {
+            "f1_score": 0.25
+          }
+        ]
       }
     },
     {
       "tool": "Shippie",
       "challenge": "hardcoded-secrets",
       "metrics": {
-        "precision": 1.0,
-        "recall": 0.6667,
-        "f1_score": 0.8,
-        "true_positives": 2,
-        "false_positives": 0,
-        "false_negatives": 1
+        "precision": 0.4833,
+        "recall": 0.3333,
+        "f1_score": 0.3452,
+        "true_positives": 1,
+        "false_positives": 2,
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 0.2857
+          },
+          {
+            "f1_score": 0.5
+          },
+          {
+            "f1_score": 0.25
+          }
+        ]
+      }
+    },
+    {
+      "tool": "Shippie",
+      "challenge": "insecure-deserialization",
+      "metrics": {
+        "precision": 0.4556,
+        "recall": 0.5,
+        "f1_score": 0.4008,
+        "true_positives": 1,
+        "false_positives": 3,
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.25
+          },
+          {
+            "f1_score": 0.2857
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
       }
     },
     {
       "tool": "Shippie",
       "challenge": "memory-leak-cache",
       "metrics": {
-        "precision": 1.0,
-        "recall": 0.375,
-        "f1_score": 0.5455,
-        "true_positives": 3,
-        "false_positives": 0,
-        "false_negatives": 5
+        "precision": 0.1381,
+        "recall": 0.125,
+        "f1_score": 0.126,
+        "true_positives": 1,
+        "false_positives": 8,
+        "false_negatives": 7,
+        "runs": [
+          {
+            "f1_score": 0.1538
+          },
+          {
+            "f1_score": 0.0909
+          },
+          {
+            "f1_score": 0.1333
+          }
+        ]
       }
     },
     {
       "tool": "Shippie",
       "challenge": "missing-await-async",
       "metrics": {
-        "precision": 1.0,
-        "recall": 0.6667,
-        "f1_score": 0.8,
-        "true_positives": 2,
+        "precision": 0.6667,
+        "recall": 0.2222,
+        "f1_score": 0.3333,
+        "true_positives": 1,
         "false_positives": 0,
-        "false_negatives": 1
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 0.5
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.5
+          }
+        ]
       }
     },
     {
@@ -303,19 +1383,41 @@
         "f1_score": 0.0,
         "true_positives": 0,
         "false_positives": 9,
-        "false_negatives": 8
+        "false_negatives": 8,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
       }
     },
     {
       "tool": "Shippie",
       "challenge": "n-plus-one-query",
       "metrics": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1_score": 0.0,
+        "precision": 0.3333,
+        "recall": 0.1667,
+        "f1_score": 0.2222,
         "true_positives": 0,
-        "false_positives": 1,
-        "false_negatives": 2
+        "false_positives": 5,
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.6667
+          }
+        ]
       }
     },
     {
@@ -324,10 +1426,21 @@
       "metrics": {
         "precision": 0.25,
         "recall": 0.5,
-        "f1_score": 0.3333,
+        "f1_score": 0.3278,
         "true_positives": 1,
         "false_positives": 3,
-        "false_negatives": 1
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.25
+          },
+          {
+            "f1_score": 0.3333
+          },
+          {
+            "f1_score": 0.4
+          }
+        ]
       }
     },
     {
@@ -338,199 +1451,168 @@
         "recall": 0.0,
         "f1_score": 0.0,
         "true_positives": 0,
-        "false_positives": 1,
-        "false_negatives": 4
-      }
-    },
-    {
-      "tool": "Shippie",
-      "challenge": "sql-injection-express",
-      "metrics": {
-        "precision": 0.1667,
-        "recall": 0.5,
-        "f1_score": 0.25,
-        "true_positives": 1,
         "false_positives": 5,
-        "false_negatives": 1
+        "false_negatives": 4,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
       }
     },
     {
       "tool": "Shippie",
-      "challenge": "typescript-type-safety",
+      "challenge": "sql-injection-django",
       "metrics": {
         "precision": 0.0,
         "recall": 0.0,
         "f1_score": 0.0,
         "true_positives": 0,
-        "false_positives": 11,
-        "false_negatives": 6
-      }
-    },
-    {
-      "tool": "Shippie",
-      "challenge": "xss-react-component",
-      "metrics": {
-        "precision": 0.0,
-        "recall": 0.0,
-        "f1_score": 0.0,
-        "true_positives": 0,
-        "false_positives": 9,
-        "false_negatives": 3
-      }
-    },
-    {
-      "tool": "Claude Reviewer",
-      "challenge": "hardcoded-secrets",
-      "metrics": {
-        "precision": 0.6,
-        "recall": 1.0,
-        "f1_score": 0.75,
-        "true_positives": 3,
-        "false_positives": 2,
-        "false_negatives": 0
-      }
-    },
-    {
-      "tool": "Claude Reviewer",
-      "challenge": "memory-leak-cache",
-      "metrics": {
-        "precision": 0.6815,
-        "recall": 0.7917,
-        "f1_score": 0.732,
-        "true_positives": 6,
-        "false_positives": 3,
-        "false_negatives": 2
-      }
-    },
-    {
-      "tool": "Claude Reviewer",
-      "challenge": "missing-await-async",
-      "metrics": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1_score": 1.0,
-        "true_positives": 3,
-        "false_positives": 0,
-        "false_negatives": 0
-      }
-    },
-    {
-      "tool": "Claude Reviewer",
-      "challenge": "multi-file-refactoring",
-      "metrics": {
-        "precision": 0.8214,
-        "recall": 0.7917,
-        "f1_score": 0.8056,
-        "true_positives": 6,
         "false_positives": 1,
-        "false_negatives": 2
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
       }
     },
     {
-      "tool": "Claude Reviewer",
-      "challenge": "n-plus-one-query",
-      "metrics": {
-        "precision": 0.5,
-        "recall": 1.0,
-        "f1_score": 0.6667,
-        "true_positives": 2,
-        "false_positives": 2,
-        "false_negatives": 0
-      }
-    },
-    {
-      "tool": "Claude Reviewer",
-      "challenge": "off-by-one-pagination",
-      "metrics": {
-        "precision": 0.5,
-        "recall": 1.0,
-        "f1_score": 0.6667,
-        "true_positives": 2,
-        "false_positives": 2,
-        "false_negatives": 0
-      }
-    },
-    {
-      "tool": "Claude Reviewer",
-      "challenge": "race-condition-counter",
-      "metrics": {
-        "precision": 0.5,
-        "recall": 0.6667,
-        "f1_score": 0.5704,
-        "true_positives": 3,
-        "false_positives": 3,
-        "false_negatives": 1
-      }
-    },
-    {
-      "tool": "Claude Reviewer",
+      "tool": "Shippie",
       "challenge": "sql-injection-express",
       "metrics": {
-        "precision": 0.5222,
-        "recall": 1.0,
-        "f1_score": 0.6794,
-        "true_positives": 2,
-        "false_positives": 2,
-        "false_negatives": 0
+        "precision": 0.4,
+        "recall": 0.3333,
+        "f1_score": 0.3175,
+        "true_positives": 1,
+        "false_positives": 3,
+        "false_negatives": 1,
+        "runs": [
+          {
+            "f1_score": 0.6667
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.2857
+          }
+        ]
       }
     },
     {
-      "tool": "Claude Reviewer",
+      "tool": "Shippie",
       "challenge": "typescript-type-safety",
       "metrics": {
-        "precision": 0.6297,
-        "recall": 0.9444,
-        "f1_score": 0.7556,
-        "true_positives": 6,
-        "false_positives": 3,
-        "false_negatives": 0
+        "precision": 0.1143,
+        "recall": 0.1111,
+        "f1_score": 0.1119,
+        "true_positives": 1,
+        "false_positives": 6,
+        "false_negatives": 5,
+        "runs": [
+          {
+            "f1_score": 0.1818
+          },
+          {
+            "f1_score": 0.1538
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
       }
     },
     {
-      "tool": "Claude Reviewer",
+      "tool": "Shippie",
       "challenge": "xss-react-component",
       "metrics": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1_score": 1.0,
-        "true_positives": 3,
-        "false_positives": 0,
-        "false_negatives": 0
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "true_positives": 0,
+        "false_positives": 3,
+        "false_negatives": 2,
+        "runs": [
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          },
+          {
+            "f1_score": 0.0
+          }
+        ]
       }
     }
   ],
   "overall_scores": [
     {
+      "tool": "Claude Reviewer",
+      "metrics": {
+        "avg_precision": 0.6499,
+        "avg_recall": 0.9873,
+        "avg_f1_score": 0.7639,
+        "total_true_positives": 44,
+        "total_false_positives": 21,
+        "total_false_negatives": 0
+      }
+    },
+    {
+      "tool": "Gemini Reviewer",
+      "metrics": {
+        "avg_precision": 0.79,
+        "avg_recall": 0.8669,
+        "avg_f1_score": 0.7764,
+        "total_true_positives": 39,
+        "total_false_positives": 11,
+        "total_false_negatives": 5
+      }
+    },
+    {
+      "tool": "OpenAI Reviewer",
+      "metrics": {
+        "avg_precision": 0.8613,
+        "avg_recall": 0.912,
+        "avg_f1_score": 0.8614,
+        "total_true_positives": 38,
+        "total_false_positives": 7,
+        "total_false_negatives": 6
+      }
+    },
+    {
       "tool": "PR-Agent",
       "metrics": {
-        "avg_precision": 0.2167,
-        "avg_recall": 0.4417,
-        "avg_f1_score": 0.2813,
-        "total_true_positives": 13,
-        "total_false_positives": 47,
-        "total_false_negatives": 28
+        "avg_precision": 0.1019,
+        "avg_recall": 0.2373,
+        "avg_f1_score": 0.1377,
+        "total_true_positives": 8,
+        "total_false_positives": 64,
+        "total_false_negatives": 36
       }
     },
     {
       "tool": "Shippie",
       "metrics": {
-        "avg_precision": 0.3417,
-        "avg_recall": 0.2708,
-        "avg_f1_score": 0.2729,
-        "total_true_positives": 9,
-        "total_false_positives": 39,
-        "total_false_negatives": 32
-      }
-    },
-    {
-      "tool": "Claude Reviewer",
-      "metrics": {
-        "avg_precision": 0.6755,
-        "avg_recall": 0.9194,
-        "avg_f1_score": 0.7626,
-        "total_true_positives": 36,
-        "total_false_positives": 18,
-        "total_false_negatives": 5
+        "avg_precision": 0.2368,
+        "avg_recall": 0.191,
+        "avg_f1_score": 0.1821,
+        "total_true_positives": 7,
+        "total_false_positives": 48,
+        "total_false_negatives": 37
       }
     }
   ]

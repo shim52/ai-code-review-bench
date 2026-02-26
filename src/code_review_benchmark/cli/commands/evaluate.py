@@ -26,6 +26,7 @@ def evaluate_cmd(
     from code_review_benchmark.models.challenge import load_challenges
     from code_review_benchmark.models.evaluation import ChallengeToolResult
     from code_review_benchmark.parsers.claude_reviewer import ClaudeReviewerParser
+    from code_review_benchmark.parsers.gemini_reviewer import GeminiReviewerParser
     from code_review_benchmark.parsers.openai_reviewer import OpenAIReviewerParser
     from code_review_benchmark.parsers.pr_agent import PRAgentParser
     from code_review_benchmark.parsers.shippie import ShippieParser
@@ -38,12 +39,17 @@ def evaluate_cmd(
         console.print(f"[red]Run directory not found: {run_path}[/red]")
         raise typer.Exit(1)
 
-    judge_model = judge_model or os.environ.get("CRB_JUDGE_MODEL", "gpt-4o")
+    judge_model = judge_model or os.environ.get("CRB_JUDGE_MODEL") or None
     tool_model = os.environ.get("CRB_TOOL_MODEL", "")
+
+    # Resolve the actual judge model name for reporting (llm_judge uses its own default when None)
+    from code_review_benchmark.evaluation.llm_judge import DEFAULT_JUDGE_MODEL
+    resolved_judge_model = judge_model or DEFAULT_JUDGE_MODEL
 
     # Build parser lookup
     parsers = {
         "claude-reviewer": ClaudeReviewerParser(),
+        "gemini-reviewer": GeminiReviewerParser(),
         "openai-reviewer": OpenAIReviewerParser(),
         "pr-agent": PRAgentParser(),
         "shippie": ShippieParser(),
@@ -126,7 +132,7 @@ def evaluate_cmd(
     # Aggregate
     report = aggregate_results(
         all_results,
-        judge_model=judge_model,
+        judge_model=resolved_judge_model,
         tool_model=tool_model,
         challenges=list(all_challenges.values()),
         compute_breakdown=True,

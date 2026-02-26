@@ -10,8 +10,6 @@ from __future__ import annotations
 import json
 import os
 
-from anthropic import Anthropic
-
 from code_review_benchmark.models.challenge import GroundTruthIssue
 from code_review_benchmark.models.evaluation import MatchResult
 from code_review_benchmark.models.finding import NormalizedFinding
@@ -42,19 +40,63 @@ def _get_judge_model(model: str | None = None) -> str:
         return model
     return os.environ.get("CRB_JUDGE_MODEL", DEFAULT_JUDGE_MODEL)
 
+# Bedrock model ID mapping (same as claude_reviewer.py)
+_BEDROCK_MODEL_MAP = {
+    "claude-sonnet-4-20250514": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "claude-opus-4-20250514": "us.anthropic.claude-opus-4-20250514-v1:0",
+}
+
+
+def _get_client():
+    """Create the appropriate Anthropic client (direct API or Bedrock)."""
+    import anthropic
+
+    use_bedrock = os.environ.get("CRB_CLAUDE_USE_BEDROCK", "").lower() == "true"
+    aws_profile = os.environ.get("AWS_PROFILE", "")
+
+    if use_bedrock or (aws_profile and not os.environ.get("ANTHROPIC_API_KEY")):
+        region = os.environ.get("AWS_REGION", os.environ.get("AWS_DEFAULT_REGION", "us-east-1"))
+        return anthropic.AnthropicBedrock(
+            aws_region=region,
+            aws_profile=aws_profile or None,
+        ), True
+    return anthropic.Anthropic(), False
+
 
 def _call_judge(model: str, system_prompt: str, user_msg: str) -> dict:
-    """Call the Anthropic API and return the parsed JSON response."""
-    client = Anthropic()
+    """Call the Anthropic API (direct or Bedrock) and return the parsed JSON response."""
+    client, is_bedrock = _get_client()
+    api_model = _BEDROCK_MODEL_MAP.get(model, model) if is_bedrock else model
+
     response = client.messages.create(
-        model=model,
+        model=api_model,
         max_tokens=512,
         system=system_prompt,
         messages=[{"role": "user", "content": user_msg}],
         temperature=0.0,
     )
     content = response.content[0].text
-    return json.loads(content)
+    return _extract_json(content)
+
+
+def _extract_json(text: str) -> dict:
+    """Extract JSON from text that may be wrapped in markdown code fences."""
+    text = text.strip()
+    # Strip markdown code fences if present
+    if text.startswith("```"):
+        lines = text.split("\n")
+        # Remove first line (```json) and last line (```)
+        lines = [l for l in lines[1:] if l.strip() != "```"]
+        text = "\n".join(lines).strip()
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        # Fallback: try to find JSON object in the text
+        start = text.find("{")
+        end = text.rfind("}") + 1
+        if start >= 0 and end > start:
+            return json.loads(text[start:end])
+        return {"matched": False, "confidence": 0.0, "explanation": "Failed to parse judge response"}
 
 
 def llm_judge_match(
