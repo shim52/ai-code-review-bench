@@ -27,6 +27,7 @@ def setup() -> None:
 
     # Force runner registration
     import code_review_benchmark.runners.claude_reviewer  # noqa: F401
+    import code_review_benchmark.runners.openai_reviewer  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
     from code_review_benchmark.runners.registry import list_runners
@@ -49,7 +50,9 @@ def setup() -> None:
     if api_key:
         console.print("[green]OPENAI_API_KEY[/green]: set")
     else:
-        console.print("[red]OPENAI_API_KEY[/red]: not set (needed for LLM judge)")
+        console.print(
+            "[red]OPENAI_API_KEY[/red]: not set (needed for LLM judge and openai-reviewer)"
+        )
 
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
     use_bedrock = os.environ.get("CRB_CLAUDE_USE_BEDROCK", "").lower() == "true"
@@ -70,6 +73,7 @@ def list_tools() -> None:
     from rich.console import Console
 
     import code_review_benchmark.runners.claude_reviewer  # noqa: F401
+    import code_review_benchmark.runners.openai_reviewer  # noqa: F401
     import code_review_benchmark.runners.pr_agent  # noqa: F401
     import code_review_benchmark.runners.shippie  # noqa: F401
     from code_review_benchmark.runners.registry import list_runners

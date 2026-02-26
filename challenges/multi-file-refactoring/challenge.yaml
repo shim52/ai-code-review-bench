@@ -4,6 +4,7 @@ description: "PR refactors order management system to add features but introduce
 language: typescript
 difficulty: hard
 categories: [design, architecture]
+tier: design-quality
 
 pr:
   title: "Refactor order system for better integration"

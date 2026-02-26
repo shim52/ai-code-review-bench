@@ -798,9 +798,7 @@ select {
 
 /* ===== Tools Grid ===== */
 .tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 1.5rem;
+    display: block;
 }
 
 .tool-card {
@@ -1263,4 +1261,130 @@ select {
 
 .tool-llm {
     margin-top: 0.5rem;
+}
+
+/* ===== Tool Type Badges ===== */
+.tool-type-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+.tool-type-badge.agent {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.tool-type-badge.pure-model {
+    background: rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+}
+
+/* ===== Tool Section Headers ===== */
+.tool-section-header {
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+}
+
+.tool-section-header:first-child {
+    margin-top: 0;
+}
+
+.tool-section-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.tool-section-header p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.tools-section-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.pure-model-card {
+    border-left: 3px solid #a855f7;
+}
+
+/* ===== System Prompt Section ===== */
+.system-prompt-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.system-prompt-section h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.system-prompt-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.system-prompt-details summary {
+    cursor: pointer;
+    color: var(--primary-color);
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+    user-select: none;
+}
+
+.system-prompt-details summary:hover {
+    text-decoration: underline;
+}
+
+.system-prompt-code {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text-primary);
+}
+
+.no-data {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-style: italic;
+    padding: 1rem 0;
+}
+
+/* ===== Coming Soon State ===== */
+.leaderboard-item.coming-soon {
+    opacity: 0.55;
+}
+
+.rank.coming-soon {
+    color: var(--text-secondary);
+}
+
+.coming-soon-text .metric-value {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-style: italic;
 }

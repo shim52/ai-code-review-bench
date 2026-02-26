@@ -47,6 +47,7 @@ class Challenge(BaseModel):
     language: str
     difficulty: Difficulty
     categories: list[str] = Field(default_factory=list)
+    tier: str = "correctness"  # "correctness" (bugs, security) or "design-quality" (architecture)
     pr: PRInfo
     issues: list[GroundTruthIssue]
 

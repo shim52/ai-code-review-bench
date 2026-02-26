@@ -114,12 +114,22 @@ function initMetricSelector() {
     });
 }
 
+// ===== Tool Type Helpers =====
+function getToolTypeBadge(toolInfo) {
+    if (!toolInfo) return '';
+    const toolType = toolInfo.tool_type || 'agent';
+    if (toolType === 'pure_model') {
+        return '<span class="tool-type-badge pure-model">Pure Model</span>';
+    }
+    return '<span class="tool-type-badge agent">Review Agent</span>';
+}
+
 // ===== Leaderboard Rendering =====
 function renderLeaderboard() {
     const container = document.getElementById('leaderboard-content');
 
-    // Sort tools by selected metric
-    const sortedTools = [...benchmarkData.overall_scores].sort((a, b) => {
+    // Build entries: scored tools sorted by metric, then unscored tools as "coming soon"
+    const scoredTools = [...benchmarkData.overall_scores].sort((a, b) => {
         switch (currentSortMetric) {
             case 'f1_score':
                 return b.metrics.avg_f1_score - a.metrics.avg_f1_score;
@@ -134,9 +144,12 @@ function renderLeaderboard() {
         }
     });
 
+    const scoredNames = new Set(scoredTools.map(t => t.tool));
+    const unscoredTools = benchmarkData.tools.filter(t => !scoredNames.has(t.name));
+
     const llmModels = benchmarkData.metadata.llm_models || {};
 
-    container.innerHTML = sortedTools.map((tool, index) => {
+    let html = scoredTools.map((tool, index) => {
         const toolInfo = benchmarkData.tools.find(t => t.name === tool.tool);
         const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
         const llmModel = toolInfo?.llm_model || llmModels[tool.tool] || '';
@@ -145,9 +158,9 @@ function renderLeaderboard() {
             <div class="leaderboard-item">
                 <div class="rank ${rankClass}">#${index + 1}</div>
                 <div class="tool-info">
-                    <div class="tool-name">${tool.tool}</div>
+                    <div class="tool-name">${tool.tool} ${getToolTypeBadge(toolInfo)}</div>
                     <div class="tool-meta">
-                        <span>⭐ ${toolInfo ? toolInfo.stars.toLocaleString() : '?'} stars</span>
+                        ${toolInfo && toolInfo.stars > 0 ? `<span>⭐ ${toolInfo.stars.toLocaleString()} stars</span>` : ''}
                         <span>📜 ${toolInfo ? toolInfo.license : ''}</span>
                         ${llmModel ? `<span class="llm-badge">🧠 ${llmModel}</span>` : ''}
                     </div>
@@ -181,6 +194,31 @@ function renderLeaderboard() {
             </div>
         `;
     }).join('');
+
+    // Append unscored tools as "coming soon"
+    html += unscoredTools.map(tool => {
+        const llmModel = tool.llm_model || '';
+        return `
+            <div class="leaderboard-item coming-soon">
+                <div class="rank coming-soon">—</div>
+                <div class="tool-info">
+                    <div class="tool-name">${tool.name} ${getToolTypeBadge(tool)}</div>
+                    <div class="tool-meta">
+                        ${tool.stars > 0 ? `<span>⭐ ${tool.stars.toLocaleString()} stars</span>` : ''}
+                        <span>📜 ${tool.license}</span>
+                        ${llmModel ? `<span class="llm-badge">🧠 ${llmModel}</span>` : ''}
+                    </div>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric coming-soon-text">
+                        <span class="metric-value">Coming soon</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = html;
 }
 
 // ===== Challenges Rendering =====
@@ -225,63 +263,109 @@ function renderChallenges() {
 function renderTools() {
     const container = document.getElementById('tools-grid');
 
-    container.innerHTML = benchmarkData.tools.map(tool => {
-        const toolScore = benchmarkData.overall_scores.find(s => s.tool === tool.name);
-        const llmModel = tool.llm_model || '';
+    // Separate tools by type
+    const agents = benchmarkData.tools.filter(t => (t.tool_type || 'agent') === 'agent');
+    const pureModels = benchmarkData.tools.filter(t => t.tool_type === 'pure_model');
 
-        return `
-            <div class="tool-card">
-                <div class="tool-header">
-                    <div class="tool-title">${tool.name}</div>
-                    <div class="tool-stars">
-                        <span>⭐</span>
-                        <span>${tool.stars.toLocaleString()}</span>
-                    </div>
+    let html = '';
+
+    if (agents.length > 0) {
+        html += '<div class="tool-section-header"><h3>Code Review Agents</h3><p>Dedicated tools built specifically for automated code review, with their own prompts, parsing, and review logic.</p></div>';
+        html += '<div class="tools-section-grid">';
+        html += agents.map(tool => renderToolCard(tool)).join('');
+        html += '</div>';
+    }
+
+    if (pureModels.length > 0) {
+        html += '<div class="tool-section-header"><h3>Pure Model Baselines</h3><p>General-purpose LLMs called directly via API with a shared system prompt — no specialized review tooling. These serve as baselines to measure the added value of dedicated review agents.</p></div>';
+        html += '<div class="tools-section-grid">';
+        html += pureModels.map(tool => renderToolCard(tool)).join('');
+        html += '</div>';
+
+        // Show the shared system prompt
+        if (benchmarkData.system_prompt) {
+            html += `
+                <div class="system-prompt-section">
+                    <h3>Shared System Prompt for Pure Model Baselines</h3>
+                    <p class="system-prompt-description">All pure model baselines receive the same system prompt. The diff is sent as the user message.</p>
+                    <details class="system-prompt-details">
+                        <summary>View system prompt</summary>
+                        <pre class="system-prompt-code"><code>${escapeHtml(benchmarkData.system_prompt)}</code></pre>
+                    </details>
                 </div>
-                <div class="tool-description">${tool.description}</div>
-                <div class="tool-install">$ ${tool.install_cmd}</div>
-                ${llmModel ? `<div class="tool-llm"><span class="llm-badge">🧠 LLM: ${llmModel}</span></div>` : ''}
-                <div class="tool-performance">
-                    <div class="performance-bars">
-                        <div class="performance-bar">
-                            <span class="bar-label">F1 Score</span>
-                            <div class="bar-track">
-                                <div class="bar-fill ${getScoreClass(toolScore.metrics.avg_f1_score)}"
-                                     style="width: ${toolScore.metrics.avg_f1_score * 100}%; background: ${getScoreColor(toolScore.metrics.avg_f1_score)}"></div>
-                            </div>
-                            <span class="bar-value">${(toolScore.metrics.avg_f1_score * 100).toFixed(1)}%</span>
-                        </div>
-                        <div class="performance-bar">
-                            <span class="bar-label">Precision</span>
-                            <div class="bar-track">
-                                <div class="bar-fill"
-                                     style="width: ${toolScore.metrics.avg_precision * 100}%; background: ${getScoreColor(toolScore.metrics.avg_precision)}"></div>
-                            </div>
-                            <span class="bar-value">${(toolScore.metrics.avg_precision * 100).toFixed(1)}%</span>
-                        </div>
-                        <div class="performance-bar">
-                            <span class="bar-label">Recall</span>
-                            <div class="bar-track">
-                                <div class="bar-fill"
-                                     style="width: ${toolScore.metrics.avg_recall * 100}%; background: ${getScoreColor(toolScore.metrics.avg_recall)}"></div>
-                            </div>
-                            <span class="bar-value">${(toolScore.metrics.avg_recall * 100).toFixed(1)}%</span>
-                        </div>
-                    </div>
+            `;
+        }
+    }
+
+    container.innerHTML = html;
+}
+
+function renderToolCard(tool) {
+    const toolScore = benchmarkData.overall_scores.find(s => s.tool === tool.name);
+    const llmModel = tool.llm_model || '';
+    const isPureModel = tool.tool_type === 'pure_model';
+    const hasScore = toolScore != null;
+
+    return `
+        <div class="tool-card ${isPureModel ? 'pure-model-card' : ''}">
+            <div class="tool-header">
+                <div class="tool-title">
+                    ${tool.name}
+                    ${getToolTypeBadge(tool)}
                 </div>
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
-                    <a href="${tool.github_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-                        View on GitHub
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
-                    </a>
+                ${tool.stars > 0 ? `<div class="tool-stars"><span>⭐</span><span>${tool.stars.toLocaleString()}</span></div>` : ''}
+            </div>
+            <div class="tool-description">${tool.description}</div>
+            <div class="tool-install">$ ${tool.install_cmd}</div>
+            ${llmModel ? `<div class="tool-llm"><span class="llm-badge">🧠 LLM: ${llmModel}</span></div>` : ''}
+            ${hasScore ? `
+            <div class="tool-performance">
+                <div class="performance-bars">
+                    <div class="performance-bar">
+                        <span class="bar-label">F1 Score</span>
+                        <div class="bar-track">
+                            <div class="bar-fill ${getScoreClass(toolScore.metrics.avg_f1_score)}"
+                                 style="width: ${toolScore.metrics.avg_f1_score * 100}%; background: ${getScoreColor(toolScore.metrics.avg_f1_score)}"></div>
+                        </div>
+                        <span class="bar-value">${(toolScore.metrics.avg_f1_score * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="performance-bar">
+                        <span class="bar-label">Precision</span>
+                        <div class="bar-track">
+                            <div class="bar-fill"
+                                 style="width: ${toolScore.metrics.avg_precision * 100}%; background: ${getScoreColor(toolScore.metrics.avg_precision)}"></div>
+                        </div>
+                        <span class="bar-value">${(toolScore.metrics.avg_precision * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="performance-bar">
+                        <span class="bar-label">Recall</span>
+                        <div class="bar-track">
+                            <div class="bar-fill"
+                                 style="width: ${toolScore.metrics.avg_recall * 100}%; background: ${getScoreColor(toolScore.metrics.avg_recall)}"></div>
+                        </div>
+                        <span class="bar-value">${(toolScore.metrics.avg_recall * 100).toFixed(1)}%</span>
+                    </div>
                 </div>
             </div>
-        `;
-    }).join('');
+            ` : '<div class="tool-performance"><p class="no-data">No benchmark results yet</p></div>'}
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                <a href="${tool.github_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    ${isPureModel ? 'Model docs' : 'View on GitHub'}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // ===== Matrix View Rendering =====

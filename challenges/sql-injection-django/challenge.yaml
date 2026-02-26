@@ -1,0 +1,31 @@
+id: sql-injection-django
+name: "SQL Injection in Django View"
+description: "PR adds a product search endpoint using raw SQL queries with string formatting instead of Django ORM parameterization."
+language: python
+difficulty: medium
+categories: [security, sql-injection]
+
+pr:
+  title: "Add product search API endpoint"
+  description: "New endpoint to search products by name and category with raw SQL for performance."
+
+issues:
+  - id: sqli-product-search
+    severity: critical
+    category: security
+    file: products/views.py
+    line_start: 15
+    line_end: 18
+    title: "SQL injection via f-string in raw query"
+    description: "User-supplied 'name' parameter is interpolated into a raw SQL query using an f-string, allowing SQL injection attacks. Should use parameterized queries with cursor.execute(sql, params)."
+    keywords: [sql injection, raw query, parameterized, f-string, user input]
+
+  - id: missing-input-validation
+    severity: high
+    category: security
+    file: products/views.py
+    line_start: 12
+    line_end: 13
+    title: "No input validation or sanitization on query parameters"
+    description: "The category and name parameters are extracted from the request without any validation, type checking, or length limits."
+    keywords: [input validation, sanitization, query parameter, request]

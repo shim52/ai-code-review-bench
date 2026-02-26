@@ -1,0 +1,31 @@
+id: insecure-deserialization
+name: "Insecure Deserialization with Pickle"
+description: "PR adds a session caching mechanism that uses pickle to serialize/deserialize user-supplied data, enabling remote code execution."
+language: python
+difficulty: medium
+categories: [security, deserialization]
+
+pr:
+  title: "Add session caching for faster page loads"
+  description: "Implemented a caching layer using pickle serialization to store and retrieve session data."
+
+issues:
+  - id: pickle-deserialize-rce
+    severity: critical
+    category: security
+    file: cache/session_store.py
+    line_start: 18
+    line_end: 21
+    title: "Remote code execution via pickle.loads on untrusted data"
+    description: "User-controlled session data from Redis is deserialized using pickle.loads, which can execute arbitrary code. Should use a safe format like JSON."
+    keywords: [pickle, deserialization, rce, remote code execution, untrusted, json]
+
+  - id: no-integrity-check
+    severity: high
+    category: security
+    file: cache/session_store.py
+    line_start: 14
+    line_end: 16
+    title: "No integrity verification on cached data"
+    description: "Session data is stored and retrieved without any HMAC or signature verification, allowing tampering with cached values."
+    keywords: [integrity, hmac, signature, tampering, verification]

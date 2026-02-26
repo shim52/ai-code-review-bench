@@ -17,31 +17,59 @@ def heuristic_match(
     """Score each ground truth against all findings using heuristic overlap.
 
     Returns one MatchResult per ground truth, linked to the best-matching finding.
+    Enforces one-to-one assignment: each finding can match at most one ground truth.
+    Uses greedy assignment by descending score.
     """
-    results: list[MatchResult] = []
-
-    for gt in ground_truths:
-        best_score = 0.0
-        best_idx: int | None = None
-
-        for i, finding in enumerate(findings):
+    # Compute all pairwise scores
+    all_pairs: list[tuple[int, int, float]] = []  # (gt_idx, finding_idx, score)
+    for gt_idx, gt in enumerate(ground_truths):
+        for f_idx, finding in enumerate(findings):
             score = _score_pair(gt, finding, file_weight, line_weight, keyword_weight)
-            if score > best_score:
-                best_score = score
-                best_idx = i
+            if score > 0.0:
+                all_pairs.append((gt_idx, f_idx, score))
 
-        matched = best_score >= 0.3  # threshold for heuristic pre-match
+    # Sort by score descending for greedy assignment
+    all_pairs.sort(key=lambda x: x[2], reverse=True)
 
-        results.append(
-            MatchResult(
-                ground_truth_id=gt.id,
-                finding_index=best_idx,
-                matched=matched,
-                match_score=round(best_score, 3),
-                match_method="heuristic",
-                explanation=f"heuristic score {best_score:.3f}",
+    # Greedy one-to-one assignment
+    assigned_gts: set[int] = set()
+    assigned_findings: set[int] = set()
+    gt_assignments: dict[int, tuple[int, float]] = {}  # gt_idx -> (finding_idx, score)
+
+    for gt_idx, f_idx, score in all_pairs:
+        if gt_idx in assigned_gts or f_idx in assigned_findings:
+            continue
+        gt_assignments[gt_idx] = (f_idx, score)
+        assigned_gts.add(gt_idx)
+        assigned_findings.add(f_idx)
+
+    # Build results for all ground truths
+    results: list[MatchResult] = []
+    for gt_idx, gt in enumerate(ground_truths):
+        if gt_idx in gt_assignments:
+            f_idx, score = gt_assignments[gt_idx]
+            matched = score >= 0.3  # threshold for heuristic pre-match
+            results.append(
+                MatchResult(
+                    ground_truth_id=gt.id,
+                    finding_index=f_idx,
+                    matched=matched,
+                    match_score=round(score, 3),
+                    match_method="heuristic",
+                    explanation=f"heuristic score {score:.3f}",
+                )
             )
-        )
+        else:
+            results.append(
+                MatchResult(
+                    ground_truth_id=gt.id,
+                    finding_index=None,
+                    matched=False,
+                    match_score=0.0,
+                    match_method="heuristic",
+                    explanation="no match found",
+                )
+            )
 
     return results
 

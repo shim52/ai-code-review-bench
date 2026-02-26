@@ -5,9 +5,10 @@
     "total_runs": 1,
     "evaluation_method": "heuristic",
     "challenges_count": 10,
-    "tools_count": 3,
+    "tools_count": 4,
     "llm_note": "Each tool ran with its default LLM model"
   },
+  "system_prompt": "You are an expert code reviewer. You will receive a git diff representing changes in a pull request. Analyze the diff carefully and identify all issues, bugs, security vulnerabilities, performance problems, and other concerns.\n\nFor each finding, output it in this exact format:\n\n### Finding N\n- **File**: <file path>\n- **Lines**: <start_line>-<end_line> (or just <line> if single line)\n- **Severity**: <critical|high|medium|low|info>\n- **Category**: <security|bug|performance|error-handling|type-safety|style|other>\n- **Title**: <short title>\n- **Description**: <detailed explanation of the issue and why it matters>\n\nFocus on:\n- Security vulnerabilities (injection, XSS, CSRF, etc.)\n- Bugs and logic errors\n- Missing error handling\n- Performance issues (N+1 queries, memory leaks, etc.)\n- Race conditions\n- Type safety issues\n- Information disclosure\n\nDo NOT report:\n- Style preferences or formatting\n- Missing documentation (unless it hides a real issue)\n- Minor naming suggestions\n\nIf there are no significant issues, output:\n### No Issues Found",
   "tools": [
     {
       "name": "PR-Agent",
@@ -17,7 +18,8 @@
       "license": "AGPL-3.0",
       "install_cmd": "pip install 'git+https://github.com/qodo-ai/pr-agent.git@main'",
       "description": "AI-powered code review and suggestions by Qodo, using LLMs to analyze pull requests",
-      "llm_model": "gpt-5.2-2025-12-11 (default)"
+      "llm_model": "gpt-5.2-2025-12-11 (default)",
+      "tool_type": "agent"
     },
     {
       "name": "Shippie",
@@ -27,7 +29,8 @@
       "license": "MIT",
       "install_cmd": "npm install -g shippie",
       "description": "Open-source, extensible AI code review agent with local and CI support",
-      "llm_model": "gpt-4.1-mini (default)"
+      "llm_model": "gpt-4.1-mini (default)",
+      "tool_type": "agent"
     },
     {
       "name": "Claude Reviewer",
@@ -36,8 +39,20 @@
       "stars": 0,
       "license": "Proprietary",
       "install_cmd": "pip install anthropic",
-      "description": "General-purpose Claude Opus model used as a code reviewer via API \u2014 not a dedicated code review agent",
-      "llm_model": "claude-opus-4-20250514"
+      "description": "General-purpose Claude Opus model prompted to do code review via API — not a dedicated code review agent",
+      "llm_model": "claude-opus-4-20250514",
+      "tool_type": "pure_model"
+    },
+    {
+      "name": "OpenAI Reviewer",
+      "version": "gpt-4o",
+      "github_url": "https://platform.openai.com/docs/models",
+      "stars": 0,
+      "license": "Proprietary",
+      "install_cmd": "pip install openai",
+      "description": "General-purpose GPT-4o model prompted to do code review via API — not a dedicated code review agent",
+      "llm_model": "gpt-4o",
+      "tool_type": "pure_model"
     }
   ],
   "challenges": [

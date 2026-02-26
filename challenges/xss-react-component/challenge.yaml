@@ -14,11 +14,11 @@ issues:
     severity: critical
     category: security
     file: src/CommentDisplay.tsx
-    line_start: 18
-    line_end: 20
+    line_start: 17
+    line_end: 21
     title: "XSS vulnerability via dangerouslySetInnerHTML on user content"
-    description: "User-provided comment content is rendered as HTML without sanitization, allowing XSS attacks through malicious scripts in comments."
-    keywords: [xss, dangerouslySetInnerHTML, sanitize, dompurify, escape]
+    description: "User-provided comment content is rendered as HTML via dangerouslySetInnerHTML without any sanitization or validation, allowing XSS attacks through malicious scripts in comments. Should use a library like DOMPurify."
+    keywords: [xss, dangerouslySetInnerHTML, sanitize, dompurify, escape, validation]
 
   - id: xss-author-name
     severity: critical
@@ -29,13 +29,3 @@ issues:
     title: "XSS vulnerability in author name rendering"
     description: "The author name is rendered using dangerouslySetInnerHTML without any sanitization, allowing XSS attacks through malicious usernames."
     keywords: [xss, dangerouslySetInnerHTML, sanitize, escape, username]
-
-  - id: missing-validation
-    severity: high
-    category: security
-    file: src/CommentDisplay.tsx
-    line_start: 17
-    line_end: 21
-    title: "No input validation for HTML content"
-    description: "The isHtml flag allows HTML rendering without any validation or sanitization library like DOMPurify."
-    keywords: [validation, sanitization, dompurify, security]

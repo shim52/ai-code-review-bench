@@ -58,3 +58,44 @@ def test_no_match():
     results = heuristic_match(gt, findings)
     assert len(results) == 1
     assert results[0].matched is False
+
+
+def test_one_to_one_deduplication():
+    """Two ground truths should not both match the same single finding."""
+    gt = [
+        GroundTruthIssue(
+            id="gt-1",
+            severity=Severity.HIGH,
+            category="security",
+            file="src/config.ts",
+            line_start=5,
+            title="Hardcoded API key",
+            keywords=["hardcoded", "api key", "secret"],
+        ),
+        GroundTruthIssue(
+            id="gt-2",
+            severity=Severity.HIGH,
+            category="security",
+            file="src/config.ts",
+            line_start=8,
+            title="Hardcoded DB password",
+            keywords=["hardcoded", "password", "secret"],
+        ),
+    ]
+    # Only one finding that matches both ground truths
+    findings = [
+        NormalizedFinding(
+            tool="test",
+            file="src/config.ts",
+            line_start=5,
+            title="Hardcoded credentials found",
+            description="Secret API key and password hardcoded",
+        )
+    ]
+
+    results = heuristic_match(gt, findings)
+    assert len(results) == 2
+
+    matched_finding_indices = [r.finding_index for r in results if r.matched]
+    # At most one ground truth should match finding 0
+    assert matched_finding_indices.count(0) <= 1

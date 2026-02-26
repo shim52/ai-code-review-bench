@@ -20,11 +20,12 @@ There's no standardized way to compare AI code review tools. Developers pick too
 
 ## Tools Benchmarked (v1)
 
-| Tool | Stars | License | Install |
-|------|-------|---------|---------|
-| [PR-Agent](https://github.com/qodo-ai/pr-agent) | 10.3k | AGPL-3.0 | `pip install pr-agent` |
-| [Shippie](https://github.com/mattzcarey/shippie) | 2.3k | MIT | `npx shippie` |
-| [AI Review](https://github.com/Nikita-Filonov/ai-review) | 269 | Apache-2.0 | `pip install xai-review` |
+| Tool | Type | License | Setup |
+|------|------|---------|---------|
+| [PR-Agent](https://github.com/qodo-ai/pr-agent) | Standalone | AGPL-3.0 | `pip install pr-agent` |
+| [Shippie](https://github.com/mattzcarey/shippie) | Standalone | MIT | `npx shippie` |
+| OpenAI Reviewer | Built-in (GPT-4o) | — | `OPENAI_API_KEY` |
+| Claude Reviewer | Built-in (Claude Opus) | — | `ANTHROPIC_API_KEY` |
 
 ## Quick Start
 
@@ -56,13 +57,20 @@ crb report --run-dir results/latest
 
 ## Challenges
 
-| Challenge | Category | Difficulty | Issues |
-|-----------|----------|------------|--------|
-| `sql-injection-express` | Security | Medium | 2 |
-| `hardcoded-secrets` | Security | Easy | 3 |
-| `missing-await-async` | Bug | Medium | 3 |
-| `off-by-one-pagination` | Bug | Medium | 2 |
-| `n-plus-one-query` | Performance | Hard | 2 |
+| Challenge | Language | Category | Difficulty | Issues |
+|-----------|----------|----------|------------|--------|
+| `sql-injection-express` | TypeScript | Security | Medium | 2 |
+| `sql-injection-django` | Python | Security | Medium | 2 |
+| `hardcoded-secrets` | TypeScript | Security | Easy | 3 |
+| `xss-react-component` | TypeScript | Security | Medium | 2 |
+| `insecure-deserialization` | Python | Security | Medium | 2 |
+| `missing-await-async` | TypeScript | Bug | Medium | 3 |
+| `off-by-one-pagination` | TypeScript | Bug | Medium | 2 |
+| `race-condition-counter` | TypeScript | Bug | Hard | 4 |
+| `typescript-type-safety` | TypeScript | Bug | Medium | 6 |
+| `n-plus-one-query` | TypeScript | Performance | Hard | 2 |
+| `memory-leak-cache` | TypeScript | Performance | Hard | 8 |
+| `multi-file-refactoring` | TypeScript | Design | Hard | 8 |
 
 ## CLI Commands
 
