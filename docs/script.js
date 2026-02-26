@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ===== Theme Management =====
 function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
     const themeToggle = document.querySelector('.theme-toggle');
@@ -136,6 +136,14 @@ function initMetricSelector() {
     });
 }
 
+// ===== SVG Icon Helpers =====
+const ICONS = {
+    star: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
+    scroll: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 0 0-2-2H2"></path><path d="M19 3H6a2 2 0 0 0-2 2v14"></path></svg>',
+    cpu: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>',
+    externalLink: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>',
+};
+
 // ===== Tool Type Helpers =====
 function getToolTypeBadge(toolInfo) {
     if (!toolInfo) return '';
@@ -187,9 +195,9 @@ function renderLeaderboard() {
                 <div class="tool-info">
                     <div class="tool-name">${tool.tool} ${getToolTypeBadge(toolInfo)}</div>
                     <div class="tool-meta">
-                        ${toolInfo && toolInfo.stars > 0 ? `<span>⭐ ${toolInfo.stars.toLocaleString()} stars</span>` : ''}
-                        <span>📜 ${toolInfo ? toolInfo.license : ''}</span>
-                        ${llmModel ? `<span class="llm-badge">🧠 ${llmModel}</span>` : ''}
+                        ${toolInfo && toolInfo.stars > 0 ? `<span>${ICONS.star} ${toolInfo.stars.toLocaleString()} stars</span>` : ''}
+                        <span>${ICONS.scroll} ${toolInfo ? toolInfo.license : ''}</span>
+                        ${llmModel ? `<span class="llm-badge">${ICONS.cpu} ${llmModel}</span>` : ''}
                     </div>
                 </div>
                 <div class="metrics-grid">
@@ -237,9 +245,9 @@ function renderLeaderboard() {
                 <div class="tool-info">
                     <div class="tool-name">${tool.name} ${getToolTypeBadge(tool)}</div>
                     <div class="tool-meta">
-                        ${tool.stars > 0 ? `<span>⭐ ${tool.stars.toLocaleString()} stars</span>` : ''}
-                        <span>📜 ${tool.license}</span>
-                        ${llmModel ? `<span class="llm-badge">🧠 ${llmModel}</span>` : ''}
+                        ${tool.stars > 0 ? `<span>${ICONS.star} ${tool.stars.toLocaleString()} stars</span>` : ''}
+                        <span>${ICONS.scroll} ${tool.license}</span>
+                        ${llmModel ? `<span class="llm-badge">${ICONS.cpu} ${llmModel}</span>` : ''}
                     </div>
                 </div>
                 <div class="metrics-grid">
@@ -346,11 +354,11 @@ function renderToolCard(tool) {
                     ${tool.name}
                     ${getToolTypeBadge(tool)}
                 </div>
-                ${tool.stars > 0 ? `<div class="tool-stars"><span>⭐</span><span>${tool.stars.toLocaleString()}</span></div>` : ''}
+                ${tool.stars > 0 ? `<div class="tool-stars">${ICONS.star}<span>${tool.stars.toLocaleString()}</span></div>` : ''}
             </div>
             <div class="tool-description">${tool.description}</div>
             <div class="tool-install">$ ${tool.install_cmd}</div>
-            ${llmModel ? `<div class="tool-llm"><span class="llm-badge">🧠 LLM: ${llmModel}</span></div>` : ''}
+            ${llmModel ? `<div class="tool-llm"><span class="llm-badge">${ICONS.cpu} LLM: ${llmModel}</span></div>` : ''}
             ${hasScore ? `
             <div class="tool-performance">
                 <div class="performance-bars">
@@ -384,11 +392,7 @@ function renderToolCard(tool) {
             <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
                 <a href="${tool.github_url}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem;">
                     ${isPureModel ? 'Model docs' : 'View on GitHub'}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                        <polyline points="15 3 21 3 21 9"></polyline>
-                        <line x1="10" y1="14" x2="21" y2="3"></line>
-                    </svg>
+                    ${ICONS.externalLink}
                 </a>
             </div>
         </div>
@@ -638,14 +642,16 @@ function getScoreClass(score) {
 
 function getScoreColor(score) {
     if (score >= 0.9) return '#10b981';
-    if (score >= 0.7) return '#3b82f6';
+    if (score >= 0.7) return '#6366f1';
     if (score >= 0.5) return '#f59e0b';
     return '#ef4444';
 }
 
 function getScoreBackground(score) {
-    const color = getScoreColor(score);
-    return `${color}15`;
+    if (score >= 0.9) return 'rgba(16,185,129,0.12)';
+    if (score >= 0.7) return 'rgba(99,102,241,0.12)';
+    if (score >= 0.5) return 'rgba(245,158,11,0.12)';
+    return 'rgba(239,68,68,0.12)';
 }
 
 function getSeverityColor(severity) {
@@ -770,11 +776,11 @@ function renderTrendChart() {
 
         // Generate a color for each tool
         const colors = {
-            'PR-Agent': 'rgb(59, 130, 246)',  // Blue
-            'Shippie': 'rgb(34, 197, 94)'     // Green
+            'PR-Agent': 'rgb(99, 102, 241)',   // Indigo
+            'Shippie': 'rgb(16, 185, 129)'     // Emerald
         };
 
-        const color = colors[tool] || `hsl(${Math.random() * 360}, 70%, 50%)`;
+        const color = colors[tool] || `hsl(${Math.random() * 360}, 60%, 55%)`;
 
         return {
             label: tool,
@@ -1114,12 +1120,12 @@ function renderBreakdownCharts(type) {
                 {
                     label: 'Precision',
                     data: data.map(d => (d.precision * 100).toFixed(1)),
-                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    backgroundColor: 'rgba(99, 102, 241, 0.5)',
                 },
                 {
                     label: 'Recall',
                     data: data.map(d => (d.recall * 100).toFixed(1)),
-                    backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.5)',
                 },
                 {
                     label: 'F1 Score',
