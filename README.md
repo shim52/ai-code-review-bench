@@ -7,6 +7,8 @@
 
 A reproducible benchmark suite that evaluates open source AI code review tools against curated pull requests with known issues.
 
+👉 **[View the Live Benchmark Dashboard](https://shim52.github.io/ai-code-review-bench/)**
+
 ## 🤔 Why This Project?
 
 There's no standardized way to compare AI code review tools. Developers pick tools based on star counts and marketing, not measured performance. This project runs tools against PRs with known issues and scores how well each tool finds them.
